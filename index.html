@@ -23,7 +23,7 @@
         .btn-action { background: linear-gradient(180deg, #e0e0e0 0%, #b0b0bc 60%, #70707c 100%); border: 3px solid #000; box-shadow: 0 3px 0 #303038; cursor: pointer; }
         .btn-action:active { transform: translateY(2px); box-shadow: 0 1px 0 #303038; }
         .pokemon-card { cursor: pointer; transition: transform 0.1s ease, box-shadow 0.1s ease; }
-        .pokemon-card:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(139, 172, 15, 0.8); }
+        .pokemon-card:hover { transform: scale(1.03); box-shadow: 0 0 12px rgba(139, 172, 15, 0.9); }
         .sparkle-particle { position: absolute; pointer-events: none; background-color: #fff; box-shadow: 0 0 6px #fff, 0 0 10px #ffe600; animation: sparkle-anim 0.8s ease-out forwards; clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%); }
         @keyframes sparkle-anim {
             0% { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
@@ -34,83 +34,112 @@
         .scanlines::before { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%); background-size: 100% 4px; z-index: 10; pointer-events: none; }
         @keyframes float-pokemon { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
         .animate-float { animation: float-pokemon 2.5s ease-in-out infinite; }
+
+        /* Estilización personalizada del Scrollbar retro */
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #1a1a22;
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #4a4a58;
+            border: 1px solid #70707c;
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #8bac0f;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-start p-4 gap-6">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-    <!-- CONSOLA GBA SP: PANTALLA EN TIEMPO REAL (OBS) -->
-    <div class="w-full max-w-md gba-shell p-5 relative">
-        <div class="flex justify-between items-center mb-3 px-1 text-[8px] text-[#4a4a58] font-bold">
-            <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-red-600 inline-block shadow-sm"></span>
-                <span class="tracking-widest">POWER</span>
-            </div>
-            <span class="tracking-widest">GAME BOY ADVANCE SP</span>
-        </div>
+    <!-- CONTENEDOR PRINCIPAL LADO A LADO (2 COLUMNAS) -->
+    <div class="w-full max-w-6xl flex flex-col lg:flex-row items-stretch justify-center gap-6">
 
-        <div class="gba-screen-lens p-3 scanlines relative shadow-inner">
-            <div id="screen-display" class="lcd-screen rounded p-3 text-[#0f380f] min-h-[260px] flex flex-col justify-between relative overflow-hidden">
-                <div id="flash-overlay" class="absolute inset-0 bg-white pointer-events-none opacity-0 z-20"></div>
-
-                <div class="flex justify-between items-center text-[9px] border-b-2 border-[#0f380f] pb-1">
-                    <span id="encounter-count">STREAM OVERLAY</span>
-                    <span id="shiny-status" class="flex items-center gap-1 font-bold">NORMAL</span>
-                </div>
-
-                <!-- Escenario con GIF animado grande -->
-                <div class="my-auto flex flex-col items-center justify-center relative py-1">
-                    <div class="relative w-36 h-36 flex items-center justify-center">
-                        <img id="pokemon-sprite" src="https://play.pokemonshowdown.com/sprites/ani/pikachu.gif" alt="Pokémon" class="w-32 h-32 object-contain animate-float drop-shadow-md">
-                        <div id="sparkle-container" class="absolute inset-0 pointer-events-none z-30"></div>
+        <!-- LADO IZQUIERDO: CONSOLA GBA SP -->
+        <div class="w-full lg:w-[420px] gba-shell p-5 flex flex-col justify-between shrink-0">
+            <div>
+                <div class="flex justify-between items-center mb-3 px-1 text-[8px] text-[#4a4a58] font-bold">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-600 inline-block shadow-sm"></span>
+                        <span class="tracking-widest">POWER</span>
                     </div>
-                    <div class="mt-1 text-center">
-                        <h2 id="pokemon-name" class="text-xs font-bold tracking-wide uppercase">PIKACHU</h2>
-                        <p id="pokemon-type" class="text-[7px] opacity-80 mt-0.5">#025 - ELECTRIC</p>
+                    <span class="tracking-widest">GAME BOY ADVANCE SP</span>
+                </div>
+
+                <div class="gba-screen-lens p-3 scanlines relative shadow-inner">
+                    <div id="screen-display" class="lcd-screen rounded p-3 text-[#0f380f] min-h-[260px] flex flex-col justify-between relative overflow-hidden">
+                        <div id="flash-overlay" class="absolute inset-0 bg-white pointer-events-none opacity-0 z-20"></div>
+
+                        <div class="flex justify-between items-center text-[9px] border-b-2 border-[#0f380f] pb-1">
+                            <span id="encounter-count">STREAM OVERLAY</span>
+                            <span id="shiny-status" class="flex items-center gap-1 font-bold">NORMAL</span>
+                        </div>
+
+                        <!-- Escenario con GIF animado -->
+                        <div class="my-auto flex flex-col items-center justify-center relative py-1">
+                            <div class="relative w-36 h-36 flex items-center justify-center">
+                                <img id="pokemon-sprite" src="https://play.pokemonshowdown.com/sprites/ani/pikachu.gif" alt="Pokémon" class="w-32 h-32 object-contain animate-float drop-shadow-md">
+                                <div id="sparkle-container" class="absolute inset-0 pointer-events-none z-30"></div>
+                            </div>
+                            <div class="mt-1 text-center">
+                                <h2 id="pokemon-name" class="text-xs font-bold tracking-wide uppercase">PIKACHU</h2>
+                                <p id="pokemon-type" class="text-[7px] opacity-80 mt-0.5">#025 - NVL 1</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-[#9bbc0f] border-2 border-[#0f380f] p-2 text-[8px] leading-relaxed min-h-[40px] flex items-center">
+                            <p id="dialog-text">Viendo el PIKACHU de @System</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-[#9bbc0f] border-2 border-[#0f380f] p-2 text-[8px] leading-relaxed min-h-[40px] flex items-center">
-                    <p id="dialog-text">Esperando capturas del chat...</p>
+                <!-- Botón central shiny -->
+                <div class="mt-4 flex justify-center">
+                    <button id="btn-shiny-toggle" class="btn-gba w-full py-3 px-4 rounded-xl text-center text-xs font-bold tracking-wider text-black">
+                        shiny ✨?
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <div class="mt-3 flex justify-between items-center text-[7px] text-[#4a4a58] px-1 font-bold">
+                    <div class="flex items-center gap-2">
+                        <span>PROB:</span>
+                        <select id="prob-select" class="bg-[#c8c8d0] border border-[#70707c] p-0.5 text-[7px] rounded">
+                            <option>1/4 (Súper Alta)</option>
+                        </select>
+                    </div>
+                    <button id="sound-toggle" class="btn-action px-2.5 py-1 rounded text-[7px] font-bold flex items-center gap-1">
+                        <i data-lucide="volume-x" class="w-3 h-3" id="sound-icon"></i>
+                        <span id="sound-text">AUDIO OFF</span>
+                    </button>
+                </div>
+                <div class="mt-2 pt-2 border-t border-[#b8b8c4] flex justify-between text-[6px] text-[#5a5a66]">
+                    <span>SELECT: NUZLOCKE</span>
+                    <span>START: POKÉDEX</span>
                 </div>
             </div>
         </div>
 
-        <!-- Botón central grande estilo GBA SP -->
-        <div class="mt-4 flex justify-center">
-            <button id="btn-shiny-toggle" class="btn-gba w-full py-3 px-4 rounded-xl text-center text-xs font-bold tracking-wider text-black">
-                shiny ✨?
-            </button>
-        </div>
-
-        <div class="mt-3 flex justify-between items-center text-[7px] text-[#4a4a58] px-1 font-bold">
-            <div class="flex items-center gap-2">
-                <span>PROB:</span>
-                <select id="prob-select" class="bg-[#c8c8d0] border border-[#70707c] p-0.5 text-[7px] rounded">
-                    <option>1/4 (Súper Alta)</option>
-                </select>
+        <!-- LADO DERECHO: POKÉDEX PERSONAL DEL ESPECTADOR -->
+        <div class="w-full gba-shell p-6 flex flex-col gap-4 grow">
+            <h3 class="text-xs font-bold text-center uppercase tracking-wider text-[#3a3a46]">Pokédex Personal del Espectador</h3>
+            
+            <!-- Barra de búsqueda -->
+            <div class="flex gap-2 justify-center">
+                <input type="text" id="input-usuario" placeholder="Ingresa tu nick de Twitch..." value="rainiovka" class="p-2.5 border-2 border-[#4a4a58] text-[9px] bg-white w-full rounded-lg text-black focus:outline-none">
+                <button id="btn-consultar" class="btn-action px-5 py-2.5 text-[9px] font-bold rounded-lg text-black shrink-0">Buscar</button>
             </div>
-            <button id="sound-toggle" class="btn-action px-2.5 py-1 rounded text-[7px] font-bold flex items-center gap-1">
-                <i data-lucide="volume-x" class="w-3 h-3" id="sound-icon"></i>
-                <span id="sound-text">AUDIO OFF</span>
-            </button>
-        </div>
-        <div class="mt-2 pt-2 border-t border-[#b8b8c4] flex justify-between text-[6px] text-[#5a5a66]">
-            <span>SELECT: NUZLOCKE</span>
-            <span>START: POKÉDEX</span>
-        </div>
-    </div>
 
-    <!-- SECCIÓN 2: CONSULTA DE POKÉDEX PERSONAL -->
-    <div class="w-full max-w-2xl gba-shell p-5 flex flex-col gap-4">
-        <h3 class="text-xs font-bold text-center uppercase tracking-wider text-[#3a3a46]">Pokédex Personal del Espectador</h3>
-        <div class="flex gap-2 justify-center">
-            <input type="text" id="input-usuario" placeholder="Ingresa tu nick de Twitch..." class="p-2 border-2 border-[#4a4a58] text-[9px] bg-white w-2/3 rounded-lg">
-            <button id="btn-consultar" class="btn-action px-4 py-2 text-[9px] font-bold rounded-lg text-black">Buscar</button>
+            <!-- Contenedor con altura fija y SCROLLBAR para no redimensionar la tabla -->
+            <div id="contenedor-catalogo" class="flex flex-col gap-4 h-[420px] overflow-y-auto custom-scroll p-3 bg-[#2b2b36] rounded-xl border-4 border-[#4a4a58]">
+                <p class="text-[8px] text-white text-center py-8">Ingresa tu nick arriba y pulsa Buscar.</p>
+            </div>
         </div>
 
-        <div id="contenedor-catalogo" class="flex flex-col gap-4 max-h-[500px] overflow-y-auto p-2 bg-[#2b2b36] rounded-xl border-4 border-[#4a4a58]">
-            <p class="text-[8px] text-white text-center py-8">Escribe tu usuario para desplegar tu colección por generaciones.</p>
-        </div>
     </div>
 
     <script>
@@ -162,7 +191,7 @@
             } else if (type === 'normal') {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.type = 'sine'; // Tono más suave y redondo
+                osc.type = 'sine';
                 osc.frequency.setValueAtTime(330, now);
                 osc.frequency.linearRampToValueAtTime(165, now + 0.2);
                 gain.gain.setValueAtTime(0.05, now);
@@ -174,7 +203,7 @@
             }
         }
 
-        // MOTOR DE MÚSICA RELAJANTE (TIPO CAJA DE MÚSICA / POKÉMON CENTER LENTO)
+        // MÚSICA RELAJANTE DE FONDO
         const FREQS = { C4: 261.63, E4: 329.63, G4: 392.00, B4: 493.88, C5: 523.25, E5: 659.25, G5: 783.99, REST: 0 };
         const MELODIA_RELAJANTE = [
             'C4', 'G4', 'E5', 'C5', 'G4', 'E4', 'C4', 'REST',
@@ -189,11 +218,8 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
 
-            // Usamos 'sine' para un sonido muy suave y cálido tipo caja de música
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, now);
-
-            // Volumen bajo y relajante con desvanecimiento muy limpio
             gain.gain.setValueAtTime(0.015, now);
             gain.gain.exponentialRampToValueAtTime(0.0001, now + duration - 0.05);
 
@@ -206,10 +232,10 @@
         function stepRelaxingLoop() {
             if (!musicPlaying) return;
             const noteName = MELODIA_RELAJANTE[currentStep];
-            playRelaxingNote(FREQS[noteName], 0.45); // Notas más espaciadas y lentas
+            playRelaxingNote(FREQS[noteName], 0.45);
 
             currentStep = (currentStep + 1) % MELODIA_RELAJANTE.length;
-            musicTimer = setTimeout(stepRelaxingLoop, 450); // Ritmo tranquilo
+            musicTimer = setTimeout(stepRelaxingLoop, 450);
         }
 
         function startBgMusic() {
@@ -231,15 +257,15 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const GENERACIONES = [
-            { nombre: "Gen 1 (Kanto)", min: 1, max: 151 },
-            { nombre: "Gen 2 (Johto)", min: 152, max: 251 },
-            { nombre: "Gen 3 (Hoenn)", min: 252, max: 386 },
-            { nombre: "Gen 4 (Sinnoh)", min: 387, max: 493 },
-            { nombre: "Gen 5 (Unova)", min: 494, max: 649 },
-            { nombre: "Gen 6 (Kalos)", min: 650, max: 721 },
-            { nombre: "Gen 7 (Alola)", min: 722, max: 809 },
-            { nombre: "Gen 8 (Galar)", min: 810, max: 905 },
-            { nombre: "Gen 9 (Paldea)", min: 906, max: 1025 }
+            { nombre: "GEN 1 (KANTO)", min: 1, max: 151 },
+            { nombre: "GEN 2 (JOHTO)", min: 152, max: 251 },
+            { nombre: "GEN 3 (HOENN)", min: 252, max: 386 },
+            { nombre: "GEN 4 (SINNOH)", min: 387, max: 493 },
+            { nombre: "GEN 5 (UNOVA)", min: 494, max: 649 },
+            { nombre: "GEN 6 (KALOS)", min: 650, max: 721 },
+            { nombre: "GEN 7 (ALOLA)", min: 722, max: 809 },
+            { nombre: "GEN 8 (GALAR)", min: 810, max: 905 },
+            { nombre: "GEN 9 (PALDEA)", min: 906, max: 1025 }
         ];
 
         let pokemonActualDisplay = { id: 25, nombre: "PIKACHU", nivel: 1, esShiny: false, usuario: "System" };
@@ -248,7 +274,7 @@
             for (let gen of GENERACIONES) {
                 if (id >= gen.min && id <= gen.max) return gen.nombre;
             }
-            return "Otras Generaciones";
+            return "OTRAS GENERACIONES";
         }
 
         async function obtenerDatosPokeAPI(pokemonId) {
@@ -382,25 +408,27 @@
 
                 for (let [genName, lista] of Object.entries(grupos)) {
                     const divGen = document.createElement('div');
-                    divGen.className = "flex flex-col gap-2 mb-2";
+                    divGen.className = "flex flex-col gap-2 mb-3";
                     
                     const gridCards = document.createElement('div');
-                    gridCards.className = "grid grid-cols-3 sm:grid-cols-4 gap-3";
+                    gridCards.className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3";
 
                     for (let p of lista) {
                         const apiInfo = await obtenerDatosPokeAPI(p.pokemon_id);
                         const img = p.es_shiny ? apiInfo.shinySprite : apiInfo.normalSprite;
 
                         const card = document.createElement('div');
-                        card.className = "bg-[#8bac0f] border-2 border-[#0f380f] p-2 flex flex-col items-center justify-between rounded pokemon-card shadow";
+                        card.className = "bg-[#8bac0f] border-2 border-[#0f380f] p-2.5 flex flex-col items-center justify-between rounded-lg pokemon-card shadow-md h-32 relative";
                         
                         card.innerHTML = `
                             <span class="text-[7px] text-[#0f380f] font-bold self-start">#${String(p.pokemon_id).padStart(3, '0')}</span>
-                            <img src="${img}" class="w-16 h-16 object-contain my-1 pointer-events-none">
-                            <span class="text-[6px] text-[#204000] pointer-events-none">Nvl ${p.nivel || 1}</span>
-                            <span class="text-[6px] ${p.es_shiny ? 'text-amber-900 font-bold' : 'text-[#0f380f]'} pointer-events-none">
-                                ${p.es_shiny ? '✨ SHINY' : 'Normal'}
-                            </span>
+                            <img src="${img}" class="w-14 h-14 object-contain my-auto pointer-events-none">
+                            <div class="text-center pointer-events-none">
+                                <span class="block text-[6px] text-[#204000]">Nvl ${p.nivel || 1}</span>
+                                <span class="block text-[5px] ${p.es_shiny ? 'text-amber-900 font-bold' : 'text-[#0f380f]'}">
+                                    ${p.es_shiny ? '✨ SHINY' : 'Normal'}
+                                </span>
+                            </div>
                         `;
 
                         card.addEventListener('click', () => {
@@ -410,7 +438,7 @@
                         gridCards.appendChild(card);
                     }
 
-                    divGen.innerHTML = `<h4 class="text-[8px] text-[#b8b8d0] border-b border-[#4a4a58] pb-1 uppercase font-bold">${genName}</h4>`;
+                    divGen.innerHTML = `<h4 class="text-[8px] text-[#b8b8d0] border-b border-[#4a4a58] pb-1 uppercase font-bold tracking-wider">${genName}</h4>`;
                     divGen.appendChild(gridCards);
                     contenedor.appendChild(divGen);
                 }
@@ -459,6 +487,11 @@
                 stopBgMusic();
             }
             lucide.createIcons();
+        });
+
+        // Cargar por defecto la búsqueda inicial al abrir
+        window.addEventListener('DOMContentLoaded', () => {
+            consultarCatalogoUsuario('rainiovka');
         });
     </script>
 </body>
