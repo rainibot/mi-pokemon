@@ -14,8 +14,25 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { font-family: 'Press Start 2P', monospace; image-rendering: pixelated; user-select: none; }
-        body { background-color: #121218; color: #0f380f; }
-        .gba-shell { background-color: #d8d8e0; border: 8px solid #90909c; box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 4px 6px rgba(255,255,255,0.6); border-radius: 2rem; }
+        
+        /* FONDO PIXEL ART DE LAPRAS NAVEGANDO EN EL MAR */
+        body { 
+            background-color: #40a0e0;
+            background-image: url('https://i.pinimg.com/736x/5c/4b/31/5c4b31336423985a1ef4c2b74050d53c.jpg');
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            background-size: cover;
+            background-attachment: fixed;
+            color: #0f380f; 
+        }
+
+        .gba-shell { 
+            background-color: rgba(216, 216, 224, 0.95); 
+            border: 8px solid #90909c; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 4px 6px rgba(255,255,255,0.6); 
+            border-radius: 2rem; 
+            backdrop-filter: blur(2px);
+        }
         .gba-screen-lens { background-color: #2b2b36; border: 4px solid #4a4a58; border-radius: 1rem; }
         .lcd-screen { background-color: #8bac0f; border: 4px solid #0f380f; transition: background-color 0.3s ease; }
         .btn-gba { background: linear-gradient(180deg, #ffe066 0%, #f5a623 60%, #c05800 100%); border: 3px solid #000; box-shadow: 0 4px 0 #602800; cursor: pointer; }
@@ -56,7 +73,7 @@
 <body class="min-h-screen flex items-center justify-center p-4">
 
     <!-- CONTENEDOR PRINCIPAL LADO A LADO (2 COLUMNAS) -->
-    <div class="w-full max-w-6xl flex flex-col lg:flex-row items-stretch justify-center gap-6">
+    <div class="w-full max-w-6xl flex flex-col lg:flex-row items-stretch justify-center gap-6 my-auto">
 
         <!-- LADO IZQUIERDO: CONSOLA GBA SP -->
         <div class="w-full lg:w-[420px] gba-shell p-5 flex flex-col justify-between shrink-0">
@@ -91,7 +108,7 @@
                         </div>
 
                         <div class="bg-[#9bbc0f] border-2 border-[#0f380f] p-2 text-[8px] leading-relaxed min-h-[40px] flex items-center">
-                            <p id="dialog-text">Viendo el PIKACHU de @System</p>
+                            <p id="dialog-text">¡Un Pokémon clásico ha aparecido!</p>
                         </div>
                     </div>
                 </div>
@@ -130,7 +147,7 @@
             
             <!-- Barra de búsqueda -->
             <div class="flex gap-2 justify-center">
-                <input type="text" id="input-usuario" placeholder="Ingresa tu nick de Twitch..." value="rainiovka" class="p-2.5 border-2 border-[#4a4a58] text-[9px] bg-white w-full rounded-lg text-black focus:outline-none">
+                <input type="text" id="input-usuario" placeholder="Ingresa tu nick de Twitch..." class="p-2.5 border-2 border-[#4a4a58] text-[9px] bg-white w-full rounded-lg text-black focus:outline-none">
                 <button id="btn-consultar" class="btn-action px-5 py-2.5 text-[9px] font-bold rounded-lg text-black shrink-0">Buscar</button>
             </div>
 
@@ -203,7 +220,7 @@
             }
         }
 
-        // MÚSICA RELAJANTE DE FONDO
+        // MÚSICA RELAJANTE DE FONDO (TIPO CENTRO POKÉMON / DESCANSO)
         const FREQS = { C4: 261.63, E4: 329.63, G4: 392.00, B4: 493.88, C5: 523.25, E5: 659.25, G5: 783.99, REST: 0 };
         const MELODIA_RELAJANTE = [
             'C4', 'G4', 'E5', 'C5', 'G4', 'E4', 'C4', 'REST',
@@ -470,7 +487,7 @@
             );
         });
 
-        // CONTROL DE MÚSICA RELAJANTE Y AUDIO ON / OFF
+        // CONTROL DE MÚSICA RELAJANTE Y AUDIO ON/OFF
         const soundToggle = document.getElementById('sound-toggle');
         const soundText = document.getElementById('sound-text');
         const soundIcon = document.getElementById('sound-icon');
@@ -489,9 +506,11 @@
             lucide.createIcons();
         });
 
-        // Cargar por defecto la búsqueda inicial al abrir
+        // Cargar por defecto un Pokémon clásico aleatorio al iniciar la página
         window.addEventListener('DOMContentLoaded', () => {
-            consultarCatalogoUsuario('rainiovka');
+            const pokemonClasicos = [25, 6, 9, 3, 143, 94, 131, 133, 150]; // Pikachu, Charizard, Blastoise, Venusaur, Snorlax, Gengar, Lapras, Eevee, Mewtwo
+            const idAleatorio = pokemonClasicos[Math.floor(Math.random() * pokemonClasicos.length)];
+            renderizarEnPantalla(idAleatorio, 1, false, 'System', '¡Un Pokémon salvaje ha aparecido!');
         });
     </script>
 </body>
