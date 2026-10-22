@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Retro Capturas y Catálogo</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Pixel retro 'Press Start 2P' -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Cliente de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { font-family: 'Press Start 2P', monospace; image-rendering: pixelated; user-select: none; }
+        body { background-color: #1a1a24; color: #000; }
+        .pixel-box { background-color: #f8f8d8; border: 4px solid #000; box-shadow: inset -4px -4px 0px #b8b898, inset 4px 4px 0px #ffffff, 4px 4px 0px rgba(0,0,0,0.5); }
+        .btn-shiny { background: linear-gradient(180deg, #ffe066 0%, #f5a623 50%, #d07000 100%); border: 4px solid #000; color: #000; text-shadow: 2px 2px 0px #fff; cursor: pointer; }
+        .sparkle-particle { position: absolute; pointer-events: none; background-color: #fff; box-shadow: 0 0 6px #fff, 0 0 10px #ffe600; animation: sparkle-anim 0.8s ease-out forwards; clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%); }
+        @keyframes sparkle-anim {
+            0% { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(180deg); opacity: 0; }
+        }
+        @keyframes flash-screen { 0%, 100% { opacity: 0; } 20%, 60% { opacity: 0.8; } 40%, 80% { opacity: 0.3; } }
+        .shiny-flash { animation: flash-screen 0.6s ease-in-out; }
+        .scanlines::before { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%); background-size: 100% 4px; z-index: 10; pointer-events: none; }
+        @keyframes float-pokemon { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
+        .animate-float { animation: float-pokemon 2.5s ease-in-out infinite; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start p-4 gap-6">
+
+    <!-- SECCIÓN 1: PANTALLA DE ALERTAS EN TIEMPO REAL (OBS) -->
+    <div class="w-full max-w-sm bg-[#d0d0d8] p-4 rounded-3xl border-8 border-[#808088] shadow-2xl relative">
+        <div class="bg-[#202820] p-3 rounded-xl border-4 border-[#404048] scanlines relative shadow-inner">
+            <div id="screen-display" class="bg-[#8bac0f] border-4 border-[#0f380f] rounded p-3 text-[#0f380f] min-h-[220px] flex flex-col justify-between relative overflow-hidden">
+                
+                <div id="flash-overlay" class="absolute inset-0 bg-white pointer-events-none opacity-0 z-20"></div>
+
+                <div class="flex justify-between items-center text-[9px] border-b-2 border-[#0f380f] pb-1">
+                    <span>STREAM OVERLAY</span>
+                    <span id="shiny-status" class="flex items-center gap-1">NORMAL</span>
+                </div>
+
+                <div class="my-auto flex flex-col items-center justify-center relative py-2">
+                    <div class="relative w-28 h-28 flex items-center justify-center">
+                        <img id="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pokémon" class="w-24 h-24 object-contain animate-float drop-shadow-md">
+                        <div id="sparkle-container" class="absolute inset-0 pointer-events-none z-30"></div>
+                    </div>
+                    <div class="mt-1 text-center">
+                        <h2 id="pokemon-name" class="text-xs font-bold tracking-wide uppercase">PIKACHU</h2>
+                        <p id="pokemon-type" class="text-[7px] opacity-80 mt-0.5">#025</p>
+                    </div>
+                </div>
+
+                <div class="bg-[#e0f0c0] border-2 border-[#0f380f] p-2 text-[8px] leading-relaxed min-h-[40px] flex items-center">
+                    <p id="dialog-text">Esperando capturas del chat...</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: CONSULTA DE CATÁLOGO PERSONAL POR USUARIO -->
+    <div class="w-full max-w-lg pixel-box p-4 rounded-xl flex flex-col gap-3">
+        <h3 class="text-xs font-bold text-center uppercase">Revisa tu Pokédex Personal</h3>
+        <div class="flex gap-2 justify-center">
+            <input type="text" id="input-usuario" placeholder="Tu nick de Twitch..." class="p-2 border-2 border-black text-[9px] bg-white w-2/3">
+            <button id="btn-consultar" class="btn-shiny px-3 py-2 text-[9px] font-bold">Buscar</button>
+        </div>
+
+        <!-- Cuadrícula donde aparecerán los Pokémon capturados del usuario -->
+        <div id="contenedor-catalogo" class="grid grid-cols-4 gap-2 mt-2 max-h-60 overflow-y-auto p-2 bg-[#e0f0c0] border-2 border-black">
+            <p class="text-[8px] col-span-4 text-center py-4">Ingresa tu usuario arriba para ver tus capturas.</p>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playRetroSound(type) {
+            initAudio();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            if (type === 'shiny') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(1046.50, now);
+                osc.frequency.exponentialRampToValueAtTime(2637.02, now + 0.25);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+            } else {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.linearRampToValueAtTime(150, now + 0.15);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+            }
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.15);
+        }
+
+        function createSparkles() {
+            const container = document.getElementById('sparkle-container');
+            container.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                const p = document.createElement('div');
+                p.className = 'sparkle-particle';
+                p.style.width = '10px'; p.style.height = '10px';
+                p.style.left = '50%'; p.style.top = '50%';
+                const angle = (i / 10) * 2 * Math.PI;
+                p.style.setProperty('--tx', `${Math.cos(angle) * 50}px`);
+                p.style.setProperty('--ty', `${Math.sin(angle) * 50}px`);
+                container.appendChild(p);
+            }
+        }
+
+        // --- CONFIGURACIÓN DE SUPABASE ---
+        const SUPABASE_URL = 'https://kwscsikpzmlyemjaaqje.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3c2NzaWtwem1seWVtamFhcWplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzNDA4NzgsImV4cCI6MjEwNzkxNjg3OH0.LP7eLnDNI2KRFgmWnM2JCNY2FQM1KrzfayGF0cSvdVE';
+        const NOMBRE_TABLA = 'pokemon_capturados';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 1. ESCUCHAR CAPTURAS EN TIEMPO REAL (OBS)
+        _supabase
+            .channel('cambios-capturas')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: NOMBRE_TABLA }, payload => {
+                const c = payload.new;
+                
+                const spriteImg = document.getElementById('pokemon-sprite');
+                const nameEl = document.getElementById('pokemon-name');
+                const typeEl = document.getElementById('pokemon-type');
+                const dialogEl = document.getElementById('dialog-text');
+                const screen = document.getElementById('screen-display');
+                const shinyStatus = document.getElementById('shiny-status');
+                const flash = document.getElementById('flash-overlay');
+
+                spriteImg.src = c.imagen_url;
+                nameEl.textContent = c.nombre;
+                typeEl.textContent = `#${String(c.pokemon_id).padStart(3, '0')}`;
+                
+                if (c.es_shiny) {
+                    screen.style.backgroundColor = '#f8f870';
+                    shinyStatus.textContent = "✨ SHINY!";
+                    flash.classList.add('shiny-flash');
+                    setTimeout(() => flash.classList.remove('shiny-flash'), 600);
+                    playRetroSound('shiny');
+                    createSparkles();
+                    dialogEl.textContent = `¡@${c.usuario} atrapó a un ${c.nombre} Shiny!`;
+                } else {
+                    screen.style.backgroundColor = '#8bac0f';
+                    shinyStatus.textContent = "NORMAL";
+                    document.getElementById('sparkle-container').innerHTML = '';
+                    playRetroSound('normal');
+                    dialogEl.textContent = `¡@${c.usuario} atrapó a ${c.nombre}!`;
+                }
+            })
+            .subscribe();
+
+        // 2. FUNCIÓN PARA CONSULTAR EL CATÁLOGO PERSONAL
+        async function consultarCatalogoUsuario(nombreUsuario) {
+            const contenedorCatalogo = document.getElementById('contenedor-catalogo');
+            contenedorCatalogo.innerHTML = '<p class="text-[8px] col-span-4 text-center py-4">Buscando capturas...</p>';
+
+            const { data, error } = await _supabase
+                .from(NOMBRE_TABLA)
+                .select('*')
+                .eq('usuario', nombreUsuario)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Error al consultar:", error);
+                contenedorCatalogo.innerHTML = '<p class="text-[8px] col-span-4 text-center text-red-600 py-4">Error al cargar datos.</p>';
+                return;
+            }
+
+            contenedorCatalogo.innerHTML = '';
+
+            if (data.length === 0) {
+                contenedorCatalogo.innerHTML = '<p class="text-[8px] col-span-4 text-center py-4">Aún no tienes Pokémon capturados.</p>';
+                return;
+            }
+
+            data.forEach(pokemon => {
+                const tarjeta = document.createElement('div');
+                tarjeta.className = "bg-white border-2 border-black p-2 flex flex-col items-center justify-center";
+                tarjeta.innerHTML = `
+                    <img src="${pokemon.imagen_url}" alt="${pokemon.nombre}" class="w-12 h-12 object-contain">
+                    <span class="text-[7px] font-bold mt-1 text-center">${pokemon.nombre}</span>
+                    <span class="text-[6px] ${pokemon.es_shiny ? 'text-amber-600 font-bold' : 'text-gray-500'}">${pokemon.es_shiny ? '✨ SHINY' : 'Normal'}</span>
+                `;
+                contenedorCatalogo.appendChild(tarjeta);
+            });
+        }
+
+        // Evento del botón de búsqueda
+        document.getElementById('btn-consultar').addEventListener('click', () => {
+            const nick = document.getElementById('input-usuario').value.trim();
+            if (nick) consultarCatalogoUsuario(nick);
+        });
+    </script>
+</body>
+</html>
