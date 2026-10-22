@@ -1,17 +1,21 @@
-cat << 'EOF' > index.html
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon GBA SP - Pokédex</title>
+    <title>Pokémon GBA SP - Pokédex y Capturas</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Pixel retro 'Press Start 2P' -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Cliente de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { font-family: 'Press Start 2P', monospace; image-rendering: pixelated; user-select: none; }
         body { background-color: #121218; color: #0f380f; }
-        .gba-shell { background-color: #d8d8e0; border: 8px solid #90909c; box-shadow: 0 20px 40px rgba(0,0,0,0.6); border-radius: 2rem; }
+        .gba-shell { background-color: #d8d8e0; border: 8px solid #90909c; box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 4px 6px rgba(255,255,255,0.6); border-radius: 2rem; }
         .gba-screen-lens { background-color: #2b2b36; border: 4px solid #4a4a58; border-radius: 1rem; }
         .lcd-screen { background-color: #8bac0f; border: 4px solid #0f380f; transition: background-color 0.3s ease; }
         .btn-gba { background: linear-gradient(180deg, #ffe066 0%, #f5a623 60%, #c05800 100%); border: 3px solid #000; box-shadow: 0 4px 0 #602800; cursor: pointer; }
@@ -34,33 +38,35 @@ cat << 'EOF' > index.html
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-4 gap-6">
 
-    <!-- OVERLAY TIEMPO REAL / PANTALLA GBA SP -->
+    <!-- CONSOLA GBA SP: PANTALLA EN TIEMPO REAL (OBS) -->
     <div class="w-full max-w-md gba-shell p-5 relative">
         <div class="flex justify-between items-center mb-3 px-1 text-[8px] text-[#4a4a58] font-bold">
             <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-red-600 inline-block"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-red-600 inline-block shadow-sm"></span>
                 <span class="tracking-widest">POWER</span>
             </div>
             <span class="tracking-widest">GAME BOY ADVANCE SP</span>
         </div>
 
         <div class="gba-screen-lens p-3 scanlines relative shadow-inner">
-            <div id="screen-display" class="lcd-screen rounded p-3 text-[#0f380f] min-h-[220px] flex flex-col justify-between relative overflow-hidden">
+            <div id="screen-display" class="lcd-screen rounded p-3 text-[#0f380f] min-h-[260px] flex flex-col justify-between relative overflow-hidden">
                 <div id="flash-overlay" class="absolute inset-0 bg-white pointer-events-none opacity-0 z-20"></div>
 
                 <div class="flex justify-between items-center text-[9px] border-b-2 border-[#0f380f] pb-1">
-                    <span>STREAM OVERLAY</span>
-                    <span id="shiny-status" class="font-bold">NORMAL</span>
+                    <span id="encounter-count">STREAM OVERLAY</span>
+                    <span id="shiny-status" class="flex items-center gap-1 font-bold">NORMAL</span>
                 </div>
 
-                <div class="my-auto flex flex-col items-center justify-center relative py-2">
-                    <div class="relative w-28 h-28 flex items-center justify-center">
-                        <img id="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pokémon" class="w-24 h-24 object-contain animate-float">
+                <!-- Escenario aumentado -->
+                <div class="my-auto flex flex-col items-center justify-center relative py-1">
+                    <!-- Contenedor ampliado a w-36 h-36 e imagen a w-32 h-32 -->
+                    <div class="relative w-36 h-36 flex items-center justify-center">
+                        <img id="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pokémon" class="w-32 h-32 object-contain animate-float drop-shadow-md">
                         <div id="sparkle-container" class="absolute inset-0 pointer-events-none z-30"></div>
                     </div>
                     <div class="mt-1 text-center">
                         <h2 id="pokemon-name" class="text-xs font-bold tracking-wide uppercase">PIKACHU</h2>
-                        <p id="pokemon-type" class="text-[7px] opacity-80 mt-0.5">#025 - NVL 1</p>
+                        <p id="pokemon-type" class="text-[7px] opacity-80 mt-0.5">#025 - ELECTRIC</p>
                     </div>
                 </div>
 
@@ -70,40 +76,158 @@ cat << 'EOF' > index.html
             </div>
         </div>
 
-        <div class="mt-4 flex gap-2 justify-center">
-            <button id="btn-shiny-toggle" class="btn-gba w-2/3 py-3 px-2 text-center text-xs font-bold text-black">
+        <!-- Botón central grande estilo GBA SP -->
+        <div class="mt-4 flex justify-center">
+            <button id="btn-shiny-toggle" class="btn-gba w-full py-3 px-4 rounded-xl text-center text-xs font-bold tracking-wider text-black">
                 shiny ✨?
             </button>
-            <button id="btn-music-toggle" class="btn-action w-1/3 py-3 px-2 text-center text-[8px] font-bold text-black flex items-center justify-center gap-1">
-                🎵 MUSIC OFF
+        </div>
+
+        <div class="mt-3 flex justify-between items-center text-[7px] text-[#4a4a58] px-1 font-bold">
+            <div class="flex items-center gap-2">
+                <span>PROB:</span>
+                <select id="prob-select" class="bg-[#c8c8d0] border border-[#70707c] p-0.5 text-[7px] rounded">
+                    <option>1/4 (Súper Alta)</option>
+                </select>
+            </div>
+            <button id="sound-toggle" class="btn-action px-2.5 py-1 rounded text-[7px] font-bold flex items-center gap-1">
+                <i data-lucide="volume-x" class="w-3 h-3" id="sound-icon"></i>
+                <span id="sound-text">AUDIO OFF</span>
             </button>
+        </div>
+        <div class="mt-2 pt-2 border-t border-[#b8b8c4] flex justify-between text-[6px] text-[#5a5a66]">
+            <span>SELECT: NUZLOCKE</span>
+            <span>START: POKÉDEX</span>
         </div>
     </div>
 
-    <!-- POKÉDEX PERSONAL -->
+    <!-- SECCIÓN 2: CONSULTA DE POKÉDEX PERSONAL -->
     <div class="w-full max-w-2xl gba-shell p-5 flex flex-col gap-4">
-        <h3 class="text-xs font-bold text-center uppercase tracking-wider text-[#3a3a46]">Pokédex Personal</h3>
+        <h3 class="text-xs font-bold text-center uppercase tracking-wider text-[#3a3a46]">Pokédex Personal del Espectador</h3>
         <div class="flex gap-2 justify-center">
-            <input type="text" id="input-usuario" placeholder="Tu usuario de Twitch..." class="p-2 border-2 border-[#4a4a58] text-[9px] bg-white w-2/3 rounded-lg">
+            <input type="text" id="input-usuario" placeholder="Ingresa tu nick de Twitch..." class="p-2 border-2 border-[#4a4a58] text-[9px] bg-white w-2/3 rounded-lg">
             <button id="btn-consultar" class="btn-action px-4 py-2 text-[9px] font-bold rounded-lg text-black">Buscar</button>
         </div>
 
         <div id="contenedor-catalogo" class="flex flex-col gap-4 max-h-[500px] overflow-y-auto p-2 bg-[#2b2b36] rounded-xl border-4 border-[#4a4a58]">
-            <p class="text-[8px] text-white text-center py-8">Ingresa tu nick arriba y pulsa Buscar.</p>
+            <p class="text-[8px] text-white text-center py-8">Escribe tu usuario para desplegar tu colección por generaciones.</p>
         </div>
     </div>
 
     <script>
+        lucide.createIcons();
+
+        // CONTEXTO DE AUDIO CHIPTUNE RETRO
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+        let musicPlaying = false;
+        let musicTimer = null;
+        let currentStep = 0;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playRetroSound(type) {
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'shiny') {
+                const notes = [1046.50, 1318.51, 1567.98, 2093.00, 2637.02];
+                notes.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + (idx * 0.06));
+                    gain.gain.setValueAtTime(0, now + (idx * 0.06));
+                    gain.gain.linearRampToValueAtTime(0.15, now + (idx * 0.06) + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.06) + 0.25);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + (idx * 0.06));
+                    osc.stop(now + (idx * 0.06) + 0.25);
+                });
+            } else if (type === 'normal') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.15);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            }
+        }
+
+        // MOTOR DE MÚSICA RETRO DE FONDO
+        const FREQS = { C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, SILENCE: 0 };
+        const MELODIA_POKEMON = [
+            'G4', 'C5', 'E5', 'G5', 'C5', 'E5', 'D5', 'B4',
+            'G4', 'B4', 'D5', 'F5', 'D5', 'B4', 'C5', 'G4',
+            'E4', 'G4', 'C5', 'E5', 'D5', 'C5', 'B4', 'A4',
+            'G4', 'A4', 'B4', 'C5', 'D5', 'G4', 'C5', 'C5'
+        ];
+
+        function playToneNote(freq, duration) {
+            if (!freq || freq === 0 || !musicPlaying) return;
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, now);
+
+            gain.gain.setValueAtTime(0.03, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration - 0.02);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + duration);
+        }
+
+        function stepMusicLoop() {
+            if (!musicPlaying) return;
+            const noteName = MELODIA_POKEMON[currentStep];
+            playToneNote(FREQS[noteName], 0.22);
+
+            currentStep = (currentStep + 1) % MELODIA_POKEMON.length;
+            musicTimer = setTimeout(stepMusicLoop, 220);
+        }
+
+        function startBgMusic() {
+            initAudio();
+            musicPlaying = true;
+            currentStep = 0;
+            stepMusicLoop();
+        }
+
+        function stopBgMusic() {
+            musicPlaying = false;
+            if (musicTimer) clearTimeout(musicTimer);
+        }
+
+        // CONFIGURACIÓN DE SUPABASE
         const SUPABASE_URL = 'https://kwscsikpzmlyemjaaqje.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3c2NzaWtwem1seWVtamFhcWplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzNDA4NzgsImV4cCI6MjEwNzkxNjg3OH0.LP7eLnDNI2KRFgmWnM2JCNY2FQM1KrzfayGF0cSvdVE';
         const NOMBRE_TABLA = 'pokemon_capturados';
-
-        let _supabase;
-        try {
-            _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        } catch(e) {
-            console.error("Error al cargar Supabase:", e);
-        }
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const GENERACIONES = [
             { nombre: "Gen 1 (Kanto)", min: 1, max: 151 },
@@ -117,13 +241,7 @@ cat << 'EOF' > index.html
             { nombre: "Gen 9 (Paldea)", min: 906, max: 1025 }
         ];
 
-        let pokemonActualDisplay = {
-            id: 25,
-            nombre: "PIKACHU",
-            nivel: 1,
-            esShiny: false,
-            usuario: "System"
-        };
+        let pokemonActualDisplay = { id: 25, nombre: "PIKACHU", nivel: 1, esShiny: false, usuario: "System" };
 
         function obtenerGeneracion(id) {
             for (let gen of GENERACIONES) {
@@ -159,8 +277,8 @@ cat << 'EOF' > index.html
                 p.style.width = '10px'; p.style.height = '10px';
                 p.style.left = '50%'; p.style.top = '50%';
                 const angle = (i / 10) * 2 * Math.PI;
-                p.style.setProperty('--tx', `${Math.cos(angle) * 50}px`);
-                p.style.setProperty('--ty', `${Math.sin(angle) * 50}px`);
+                p.style.setProperty('--tx', `${Math.cos(angle) * 60}px`);
+                p.style.setProperty('--ty', `${Math.sin(angle) * 60}px`);
                 container.appendChild(p);
             }
         }
@@ -192,10 +310,12 @@ cat << 'EOF' > index.html
             if (esShiny) {
                 screen.style.backgroundColor = '#f8f870';
                 shinyStatus.textContent = "✨ SHINY!";
+                playRetroSound('shiny');
                 crearChispas();
             } else {
                 screen.style.backgroundColor = '#8bac0f';
                 shinyStatus.textContent = "NORMAL";
+                playRetroSound('normal');
                 document.getElementById('sparkle-container').innerHTML = '';
             }
 
@@ -206,6 +326,7 @@ cat << 'EOF' > index.html
             }
         }
 
+        // 1. ESCUCHAR CAPTURAS EN TIEMPO REAL (OBS)
         _supabase
             .channel('cambios-capturas')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: NOMBRE_TABLA }, async payload => {
@@ -225,7 +346,9 @@ cat << 'EOF' > index.html
             })
             .subscribe();
 
+        // 2. CONSULTAR POKÉDEX PERSONAL CON SPRITES UN POCO MÁS GRANDES
         async function consultarCatalogoUsuario(nombreUsuario) {
+            playRetroSound('click');
             const contenedor = document.getElementById('contenedor-catalogo');
             contenedor.innerHTML = '<p class="text-[8px] text-white text-center py-8">Cargando Pokédex...</p>';
 
@@ -260,7 +383,7 @@ cat << 'EOF' > index.html
                     divGen.className = "flex flex-col gap-2 mb-2";
                     
                     const gridCards = document.createElement('div');
-                    gridCards.className = "grid grid-cols-4 sm:grid-cols-5 gap-2";
+                    gridCards.className = "grid grid-cols-3 sm:grid-cols-4 gap-3";
 
                     for (let p of lista) {
                         const img = p.es_shiny 
@@ -271,10 +394,10 @@ cat << 'EOF' > index.html
                         card.className = "bg-[#8bac0f] border-2 border-[#0f380f] p-2 flex flex-col items-center justify-between rounded pokemon-card shadow";
                         
                         card.innerHTML = `
-                            <span class="text-[6px] text-[#0f380f] font-bold self-start">#${String(p.pokemon_id).padStart(3, '0')}</span>
-                            <img src="${img}" class="w-12 h-12 object-contain my-1 pointer-events-none">
-                            <span class="text-[5px] text-[#204000] pointer-events-none">Nvl ${p.nivel || 1}</span>
-                            <span class="text-[5px] ${p.es_shiny ? 'text-amber-900 font-bold' : 'text-[#0f380f]'} pointer-events-none">
+                            <span class="text-[7px] text-[#0f380f] font-bold self-start">#${String(p.pokemon_id).padStart(3, '0')}</span>
+                            <img src="${img}" class="w-16 h-16 object-contain my-1 pointer-events-none">
+                            <span class="text-[6px] text-[#204000] pointer-events-none">Nvl ${p.nivel || 1}</span>
+                            <span class="text-[6px] ${p.es_shiny ? 'text-amber-900 font-bold' : 'text-[#0f380f]'} pointer-events-none">
                                 ${p.es_shiny ? '✨ SHINY' : 'Normal'}
                             </span>
                         `;
@@ -308,6 +431,7 @@ cat << 'EOF' > index.html
         });
 
         document.getElementById('btn-shiny-toggle').addEventListener('click', () => {
+            playRetroSound('click');
             pokemonActualDisplay.esShiny = !pokemonActualDisplay.esShiny;
             renderizarEnPantalla(
                 pokemonActualDisplay.id,
@@ -317,31 +441,24 @@ cat << 'EOF' > index.html
             );
         });
 
-        // REPRODUCTOR DE MÚSICA CORREGIDO
-        let bgAudio = new Audio('https://ia800902.us.archive.org/27/items/tv-theme-song-pokemon/Pokemon%20Theme.mp3');
-        bgAudio.loop = true;
-        bgAudio.volume = 0.25;
-        let musicPlaying = false;
+        // CONTROL DE MÚSICA Y AUDIO ON / OFF
+        const soundToggle = document.getElementById('sound-toggle');
+        const soundText = document.getElementById('sound-text');
+        const soundIcon = document.getElementById('sound-icon');
 
-        const musicBtn = document.getElementById('btn-music-toggle');
-        musicBtn.addEventListener('click', () => {
+        soundToggle.addEventListener('click', () => {
             if (!musicPlaying) {
-                bgAudio.play().then(() => {
-                    musicPlaying = true;
-                    musicBtn.textContent = "🎵 MUSIC ON";
-                    musicBtn.style.background = "linear-gradient(180deg, #85e085 0%, #47d147 60%, #29a329 100%)";
-                }).catch(err => {
-                    console.error("Bloqueo de audio:", err);
-                    alert("Por favor haz clic en cualquier parte vacía de la página primero e intenta de nuevo.");
-                });
+                soundText.textContent = 'AUDIO ON';
+                soundIcon.setAttribute('data-lucide', 'volume-2');
+                startBgMusic();
+                playRetroSound('click');
             } else {
-                bgAudio.pause();
-                musicPlaying = false;
-                musicBtn.textContent = "🎵 MUSIC OFF";
-                musicBtn.style.background = "";
+                soundText.textContent = 'AUDIO OFF';
+                soundIcon.setAttribute('data-lucide', 'volume-x');
+                stopBgMusic();
             }
+            lucide.createIcons();
         });
     </script>
 </body>
 </html>
-EOF
