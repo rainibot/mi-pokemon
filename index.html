@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon GBA SP - Pokédex y Sistema de Almacenamiento</title>
+    <title>Pokédex Estilo Clásico</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fuente Pixel retro 'Press Start 2P' -->
@@ -15,205 +15,300 @@
     <style>
         * { font-family: 'Press Start 2P', monospace; image-rendering: pixelated; user-select: none; }
         
-        /* FONDO GENERAL DINÁMICO EN BASE64 */
         body { 
-            background-color: #40a0e0;
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: cover;
-            background-attachment: fixed;
-            color: #0f380f; 
+            background-color: #d8c4b6;
+            background-image: radial-gradient(#e5d4c0 15%, transparent 16%);
+            background-size: 24px 24px;
+            color: #4a403a; 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
         }
 
-        /* ESTRUCTURA EXTERIOR ESTILO POKÉDEX ROJA */
-        .gba-shell { 
-            background-color: rgba(220, 38, 38, 0.95); 
-            border: 8px solid #991b1b; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 4px 6px rgba(255,255,255,0.4); 
-            border-radius: 2rem; 
-            backdrop-filter: blur(2px);
+        /* CONTENEDOR PRINCIPAL IDÉNTICO A LA REFERENCIA */
+        .pokedex-container {
+            width: 100%;
+            max-width: 950px;
+            background-color: #e3d5c6;
+            border: 4px solid #b5a493;
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .btn-gba { background: linear-gradient(180deg, #ffe066 0%, #f5a623 60%, #c05800 100%); border: 3px solid #000; box-shadow: 0 4px 0 #602800; cursor: pointer; }
-        .btn-gba:active { transform: translateY(3px); box-shadow: 0 1px 0 #602800; }
-        .btn-action { background: linear-gradient(180deg, #e0e0e0 0%, #b0b0bc 60%, #70707c 100%); border: 3px solid #000; box-shadow: 0 3px 0 #303038; cursor: pointer; }
-        .btn-action:active { transform: translateY(2px); box-shadow: 0 1px 0 #303038; }
-
-        /* ESTILOS INTERIORES DE CAJA Y PANEL DE INFO CON TONOS ROJOS */
-        .pc-info-panel {
-            background-color: #7f1d1d;
-            border: 6px solid #450a0a;
-            border-radius: 1rem;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        /* BARRA SUPERIOR DE BÚSQUEDA */
+        .top-search-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
         }
 
-        .pc-box-container {
-            background-color: #7f1d1d;
-            border: 6px solid #450a0a;
-            border-radius: 1rem;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        .search-input {
+            background: #ffffff;
+            border: 3px solid #7c6f64;
+            border-radius: 4px;
+            padding: 10px 14px;
+            font-size: 10px;
+            color: #333;
+            outline: none;
+            width: 260px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .pc-preview-box {
-            background-color: #e0f2fe;
-            background-image: 
-                radial-gradient(#bae6fd 20%, transparent 20%),
-                radial-gradient(#bae6fd 20%, transparent 20%);
-            background-position: 0 0, 8px 8px;
-            background-size: 16px 16px;
-            border: 4px solid #450a0a;
-            border-radius: 0.5rem;
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
+        .btn-buscar {
+            background: linear-gradient(180deg, #d8d8d8 0%, #a8a8a8 100%);
+            border: 3px solid #4a403a;
+            box-shadow: 0 3px 0 #2a201a;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 10px 18px;
+            cursor: pointer;
+            color: #222;
+        }
+        .btn-buscar:active { transform: translateY(2px); box-shadow: 0 1px 0 #2a201a; }
+
+        /* DOS PANELES PRINCIPALES */
+        .main-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
 
-        /* TAPETE DE LA CAJA POKÉMON (FONDO DINÁMICO POR REGIÓN) */
-        .pc-box-wallpaper {
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: cover;
-            border: 5px solid #d8b030;
-            box-shadow: inset 0 0 12px rgba(0,0,0,0.5), 0 0 0 3px #886018;
-            border-radius: 0.25rem;
+        @media (max-width: 768px) {
+            .main-panels { grid-template-columns: 1fr; }
+        }
+
+        /* PANEL IZQUIERDO */
+        .left-panel {
+            background-color: #ede2d5;
+            border: 4px solid #b5a493;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .left-header {
+            text-align: center;
+            padding: 12px;
+            font-size: 14px;
+            color: #6a5a4a;
+            border-bottom: 3px solid #d4c4b2;
+            background: #e5d8cc;
+        }
+
+        .sprite-preview-box {
+            background-color: #ffffff;
+            border: 3px solid #b5a493;
+            margin: 16px;
+            height: 260px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             position: relative;
+            border-radius: 4px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.08);
         }
 
-        .pc-header-banner {
-            background: linear-gradient(180deg, #ffffff 0%, #e0e0e8 100%);
-            border: 3px solid #450a0a;
-            box-shadow: 0 2px 0 #2a0606;
-            color: #282830;
+        .info-bottom-box {
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+            margin-top: auto;
+            border-top: 3px solid #d4c4b2;
+            background: #e8dcd0;
         }
 
-        /* ESPACIO PARA LOS POKÉMON MÁS GRANDES SIN CASILLAS */
-        .pokemon-icon-slot {
-            width: 110px;
-            height: 110px;
+        /* PANEL DERECHO */
+        .right-panel {
+            background-color: #f7f1e8;
+            border: 4px solid #b5a493;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
             position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .right-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #e0d4c8;
+        }
+
+        .arrow-btn {
+            background: #ff6b35;
+            border: 3px solid #a3330b;
+            color: white;
+            font-size: 12px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #702005;
+        }
+        .arrow-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #702005; }
+
+        .region-title {
+            font-size: 12px;
+            color: #4a403a;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* GRILLA DE POKÉMON (TAMAÑO AUMENTADO) */
+        .pokemon-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            overflow-y: auto;
+            max-height: 380px;
+            padding: 6px;
+            align-items: center;
+            justify-items: center;
+        }
+
+        .pokemon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.1s ease;
             background: transparent;
             border: none;
-            border-radius: 0;
-            transition: transform 0.1s ease;
         }
 
-        .pokemon-icon-slot.captured {
-            cursor: pointer;
-        }
-
-        .pokemon-icon-slot.captured:hover {
+        .pokemon-item:hover {
             transform: scale(1.15);
-            z-index: 20;
+            z-index: 10;
         }
 
-        /* SILUETA TENUE CON EFECTO DE SOMBRA RETRO */
-        .silhouette-img {
-            filter: grayscale(100%);
-            opacity: 0.35;
+        .pokemon-item img {
+            width: 140px; /* Tamaño aumentado */
+            height: 140px; /* Tamaño aumentado */
+            object-fit: contain;
         }
 
-        .sparkle-particle { position: absolute; pointer-events: none; background-color: #fff; box-shadow: 0 0 6px #fff, 0 0 10px #ffe600; animation: sparkle-anim 0.8s ease-out forwards; clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%); }
+        .pokemon-item .pkmn-name {
+            font-size: 7px;
+            color: #8a7a6a;
+            margin-top: 3px;
+            text-align: center;
+        }
+
+        .silhouette {
+            filter: grayscale(100%) brightness(0.2);
+            opacity: 0.25;
+        }
+
+        .sparkle-particle { 
+            position: absolute; 
+            pointer-events: none; 
+            background-color: #ffd700; 
+            box-shadow: 0 0 6px #fff, 0 0 10px #ffea00; 
+            animation: sparkle-anim 0.8s ease-out forwards; 
+            clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%); 
+        }
+
         @keyframes sparkle-anim {
             0% { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
             100% { transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(180deg); opacity: 0; }
         }
 
-        @keyframes float-pokemon { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
-        .animate-float { animation: float-pokemon 2.5s ease-in-out infinite; }
+        @keyframes float-anim { 
+            0%, 100% { transform: translateY(0px); } 
+            50% { transform: translateY(-6px); } 
+        }
+        .animate-float { animation: float-anim 2.5s ease-in-out infinite; }
 
-        /* Scrollbar personalizado */
-        .custom-scroll::-webkit-scrollbar { width: 8px; }
-        .custom-scroll::-webkit-scrollbar-track { background: rgba(69, 10, 10, 0.8); border-radius: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #d8b030; border: 1px solid #886018; border-radius: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #f5a623; }
+        .down-arrow-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        .down-arrow-btn {
+            background: #ff6b35;
+            border: 3px solid #a3330b;
+            width: 36px;
+            height: 24px;
+            border-radius: 0 0 12px 12px;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #702005;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+        .down-arrow-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #702005; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-3 sm:p-6">
+<body>
 
-    <!-- CONTENEDOR PRINCIPAL -->
-    <div class="w-full max-w-6xl flex flex-col gap-4 my-auto">
+    <div class="pokedex-container">
         
-        <!-- BARRA SUPERIOR INDEPENDIENTE DE BÚSQUEDA Y CONSULTA -->
-        <div class="gba-shell p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
-                <i data-lucide="monitor" class="w-5 h-5 text-white"></i>
-                <span class="text-[9px] text-white tracking-widest uppercase font-bold">POKÉDEX NACIONAL DE REGIONES</span>
-            </div>
-
-            <div class="flex gap-2 w-full sm:w-auto">
-                <input type="text" id="input-usuario" placeholder="Nick de Twitch..." class="p-2 text-[9px] bg-white text-black border-2 border-[#450a0a] rounded focus:outline-none w-full sm:w-60">
-                <button id="btn-consultar" class="btn-action px-4 py-2 text-[9px] font-bold rounded text-black shrink-0">BUSCAR</button>
+        <!-- BARRA SUPERIOR DE BÚSQUEDA -->
+        <div class="top-search-bar">
+            <input type="text" id="input-usuario" class="search-input" placeholder="Nick de Twitch...">
+            <div class="flex gap-2">
+                <button id="btn-consultar" class="btn-buscar">BUSCAR</button>
+                <button id="sound-toggle" class="btn-buscar" title="Audio">🔊</button>
             </div>
         </div>
 
-        <!-- SECCIÓN DE LOS 2 CUADROS INDEPENDIENTES (INFO Y CAJA DE PC) -->
-        <div class="flex flex-col lg:flex-row gap-6 items-stretch justify-center">
+        <!-- PANELES -->
+        <div class="main-panels">
             
-            <!-- CUADRO 1: INFO PKMN (IZQUIERDA) -->
-            <div class="w-full lg:w-96 gba-shell p-4 flex flex-col justify-between shrink-0">
-                <div class="pc-info-panel p-4 flex flex-col justify-between h-full">
-                    <div>
-                        <!-- Encabezado INFO PKMN -->
-                        <div class="bg-[#450a0a] border-2 border-[#2a0606] px-2 py-1.5 text-center mb-3 rounded">
-                            <span class="text-[9px] text-[#f8d030] font-bold tracking-widest">— INFO PKMN —</span>
-                        </div>
+            <!-- PANEL IZQUIERDO -->
+            <div class="left-panel">
+                <div id="pokemon-name" class="left-header">Blastoise</div>
+                
+                <div class="sprite-preview-box">
+                    <img id="pokemon-sprite" src="https://play.pokemonshowdown.com/sprites/xyani/blastoise.gif" alt="Pokémon" class="w-44 h-44 object-contain animate-float">
+                    <div id="sparkle-container" class="absolute inset-0 pointer-events-none"></div>
+                </div>
 
-                        <!-- Cuadro con fondo azul claro y modelo 3D -->
-                        <div class="pc-preview-box h-52 flex items-center justify-center relative p-2 mb-3">
-                            <img id="pokemon-sprite" src="https://play.pokemonshowdown.com/sprites/xyani/pikachu.gif" alt="Pokémon 3D" class="w-36 h-36 object-contain animate-float drop-shadow-md">
-                            <div id="sparkle-container" class="absolute inset-0 pointer-events-none z-30"></div>
-                        </div>
-
-                        <!-- Datos del Pokémon seleccionado -->
-                        <div class="bg-[#450a0a] border-2 border-[#2a0606] p-3 rounded text-white flex flex-col gap-1.5">
-                            <div class="flex justify-between items-center">
-                                <h2 id="pokemon-name" class="text-[10px] font-bold text-[#f8f8f8] uppercase tracking-wider">PIKACHU</h2>
-                                <span id="shiny-status" class="text-[7px] text-[#fca5a5] font-bold">NORMAL</span>
-                            </div>
-                            <p id="pokemon-id-display" class="text-[8px] text-[#fecaca]">/#025</p>
-                            <div class="flex justify-between items-center text-[8px] mt-1 pt-1 border-t border-[#7f1d1d]">
-                                <span id="pokemon-owner" class="text-[#fca5a5]">@System</span>
-                                <span id="pokemon-level" class="text-[#f8d030]">Nv.1</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Botones de Acción dentro del cuadro INFO -->
-                    <div class="mt-4 flex flex-col gap-2">
-                        <button id="btn-shiny-toggle" class="btn-gba w-full py-3 px-2 rounded-lg text-center text-[8px] font-bold tracking-wider text-black">
-                            shiny ✨?
-                        </button>
-                        
-                        <button id="sound-toggle" class="btn-action w-full py-2.5 px-2 rounded-lg text-[7px] font-bold flex items-center justify-center gap-2 text-black">
-                            <i data-lucide="volume-x" class="w-3.5 h-3.5" id="sound-icon"></i>
-                            <span id="sound-text">AUDIO OFF</span>
-                        </button>
-                    </div>
+                <div class="info-bottom-box">
+                    <div id="pokemon-level" class="text-sm font-bold text-[#5a4a3a]">Nivel 3</div>
+                    <div id="shiny-status" class="text-xs font-bold text-[#b8860b] cursor-pointer">Shiny ✨?</div>
+                    <div id="pokemon-owner" class="text-[8px] text-[#8a7a6a]">@System</div>
                 </div>
             </div>
 
-            <!-- CUADRO 2: CAJA POKÉMON (DERECHA) -->
-            <div class="w-full gba-shell p-4 flex flex-col justify-between grow">
-                <div class="pc-box-container p-4 flex flex-col justify-between h-full gap-3">
-                    
-                    <!-- Cabecera de Navegación por Regiones -->
-                    <div class="pc-header-banner p-2 rounded flex items-center justify-between text-[8px] font-bold">
-                        <button id="btn-prev-gen" class="px-2 py-1 text-[#7f1d1d] hover:bg-[#e0e0e8] rounded border border-[#450a0a]">◀ ANTERIOR</button>
-                        <span id="box-title" class="tracking-widest uppercase text-center text-[9px] text-[#7f1d1d]">KANTO (GEN 1)</span>
-                        <button id="btn-next-gen" class="px-2 py-1 text-[#7f1d1d] hover:bg-[#e0e0e8] rounded border border-[#450a0a]">SIGUIENTE ▶</button>
-                    </div>
+            <!-- PANEL DERECHO -->
+            <div class="right-panel">
+                <div class="right-header">
+                    <button id="btn-prev-gen" class="arrow-btn">❮</button>
+                    <div id="box-title" class="region-title">Kanto Pokédex</div>
+                    <button id="btn-next-gen" class="arrow-btn">❯</button>
+                </div>
 
-                    <!-- TAPETE CON FONDOS DINÁMICOS Y POKÉMON CON SPRITES GRANDES -->
-                    <div id="pc-tapete" class="pc-box-wallpaper h-[410px] p-4 custom-scroll overflow-y-auto">
-                        <div id="contenedor-catalogo" class="grid grid-cols-3 gap-4 sm:gap-6 justify-items-center items-center">
-                            <p class="col-span-full text-[8px] text-[#7f1d1d] bg-white/90 p-4 rounded-lg border-2 border-[#450a0a] text-center py-10 font-bold">
-                                Ingresa tu nick arriba y pulsa Buscar para consultar tu Pokédex.
-                            </p>
-                        </div>
-                    </div>
+                <div id="contenedor-catalogo" class="pokemon-grid">
+                    <!-- Aquí se cargan dinámicamente las imágenes grandes -->
+                </div>
 
-                    <div class="flex justify-between items-center text-[7px] text-white px-1">
-                        <span id="region-progress-text">DESBLOQUEADOS: 0/151</span>
-                        <span>SELECCIONAR: VER INFO</span>
-                    </div>
+                <div class="down-arrow-container">
+                    <button id="btn-next-gen-bottom" class="down-arrow-btn">▼</button>
                 </div>
             </div>
 
@@ -222,143 +317,49 @@
     </div>
 
     <script>
-        lucide.createIcons();
+        const SUPABASE_URL = 'https://kwscsikpzmlyemjaaqje.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3c2NzaWtwem1seWVtamFhcWplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzNDA4NzgsImV4cCI6MjEwNzkxNjg3OH0.LP7eLnDNI2KRFgmWnM2JCNY2FQM1KrzfayGF0cSvdVE';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // CONTEXTO DE AUDIO CHIPTUNE RETRO
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        let audioCtx = null;
-        let musicPlaying = false;
-        let musicTimer = null;
-        let currentStep = 0;
-
-        function initAudio() {
-            if (!audioCtx) audioCtx = new AudioContext();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        }
-
-        function playRetroSound(type) {
-            initAudio();
-            const now = audioCtx.currentTime;
-
-            if (type === 'click') {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(440, now);
-                osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-                gain.gain.setValueAtTime(0.08, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start(now);
-                osc.stop(now + 0.08);
-            } else if (type === 'shiny') {
-                const notes = [1046.50, 1318.51, 1567.98, 2093.00, 2637.02];
-                notes.forEach((freq, idx) => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(freq, now + (idx * 0.06));
-                    gain.gain.setValueAtTime(0, now + (idx * 0.06));
-                    gain.gain.linearRampToValueAtTime(0.12, now + (idx * 0.06) + 0.02);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.06) + 0.25);
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.start(now + (idx * 0.06));
-                    osc.stop(now + (idx * 0.06) + 0.25);
-                });
-            } else if (type === 'normal') {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(330, now);
-                osc.frequency.linearRampToValueAtTime(165, now + 0.2);
-                gain.gain.setValueAtTime(0.05, now);
-                gain.gain.linearRampToValueAtTime(0.001, now + 0.2);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start(now);
-                osc.stop(now + 0.2);
-            }
-        }
-
-        // MÚSICA RELAJANTE DE FONDO
-        const FREQS = { C4: 261.63, E4: 329.63, G4: 392.00, B4: 493.88, C5: 523.25, E5: 659.25, G5: 783.99, REST: 0 };
-        const MELODIA_RELAJANTE = [
-            'C4', 'G4', 'E5', 'C5', 'G4', 'E4', 'C4', 'REST',
-            'B4', 'G4', 'D5', 'B4', 'G4', 'D4', 'B4', 'REST',
-            'A4', 'E5', 'C5', 'A4', 'E4', 'C4', 'A4', 'REST',
-            'G4', 'D5', 'B4', 'G4', 'D4', 'G4', 'C5', 'REST'
-        ];
-
-        function playRelaxingNote(freq, duration) {
-            if (!freq || freq === 0 || !musicPlaying) return;
-            const now = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, now);
-            gain.gain.setValueAtTime(0.015, now);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration - 0.05);
-
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(now);
-            osc.stop(now + duration);
-        }
-
-        function stepRelaxingLoop() {
-            if (!musicPlaying) return;
-            const noteName = MELODIA_RELAJANTE[currentStep];
-            playRelaxingNote(FREQS[noteName], 0.45);
-
-            currentStep = (currentStep + 1) % MELODIA_RELAJANTE.length;
-            musicTimer = setTimeout(stepRelaxingLoop, 450);
-        }
-
-        function startBgMusic() {
-            initAudio();
-            musicPlaying = true;
-            currentStep = 0;
-            stepRelaxingLoop();
-        }
-
-        function stopBgMusic() {
-            musicPlaying = false;
-            if (musicTimer) clearTimeout(musicTimer);
-        }
-
-        // 1. LISTA DE FONDOS GENERALES EN BASE64
-        const fondosGeneralesBase64 = [
-            "url('data:image/png;base64,TU_BASE64_FONDO_1_AQUI')",
-            "url('data:image/png;base64,TU_BASE64_FONDO_2_AQUI')",
-            "url('data:image/png;base64,TU_BASE64_FONDO_3_AQUI')"
-        ];
-
-        function asignarFondoGeneralAleatorio() {
-            const elegido = fondosGeneralesBase64[Math.floor(Math.random() * fondosGeneralesBase64.length)];
-            document.body.style.backgroundImage = elegido;
-        }
-
-        // 2. CONFIGURACIÓN DE REGIONES CON SUS RESPECTIVOS FONDOS EN BASE64 EXCLUSIVOS
         const REGIONES = [
-            { nombre: "KANTO (GEN 1)", min: 1, max: 151, bg: "url('data:image/png;base64,TU_BASE64_KANTO_AQUI')" },
-            { nombre: "JOHTO (GEN 2)", min: 152, max: 251, bg: "url('data:image/png;base64,TU_BASE64_JOHTO_AQUI')" },
-            { nombre: "HOENN (GEN 3)", min: 252, max: 386, bg: "url('data:image/png;base64,TU_BASE64_HOENN_AQUI')" },
-            { nombre: "SINNOH (GEN 4)", min: 387, max: 493, bg: "url('data:image/png;base64,TU_BASE64_SINNOH_AQUI')" },
-            { nombre: "UNOVA (GEN 5)", min: 494, max: 649, bg: "url('data:image/png;base64,TU_BASE64_UNOVA_AQUI')" },
-            { nombre: "KALOS (GEN 6)", min: 650, max: 721, bg: "url('data:image/png;base64,TU_BASE64_KALOS_AQUI')" },
-            { nombre: "ALOLA (GEN 7)", min: 722, max: 809, bg: "url('data:image/png;base64,TU_BASE64_ALOLA_AQUI')" },
-            { nombre: "GALAR (GEN 8)", min: 810, max: 905, bg: "url('data:image/png;base64,TU_BASE64_GALAR_AQUI')" },
-            { nombre: "PALDEA (GEN 9)", min: 906, max: 1025, bg: "url('data:image/png;base64,TU_BASE64_PALDEA_AQUI')" }
+            { nombre: "Kanto Pokédex", min: 1, max: 151 },
+            { nombre: "Johto Pokédex", min: 152, max: 251 },
+            { nombre: "Hoenn Pokédex", min: 252, max: 386 },
+            { nombre: "Sinnoh Pokédex", min: 387, max: 493 },
+            { nombre: "Unova Pokédex", min: 494, max: 649 },
+            { nombre: "Kalos Pokédex", min: 650, max: 721 },
+            { nombre: "Alola Pokédex", min: 722, max: 809 },
+            { nombre: "Galar Pokédex", min: 810, max: 905 },
+            { nombre: "Paldea Pokédex", min: 906, max: 1025 }
         ];
 
         let regionActualIndex = 0;
         let capturasUsuarioActual = [];
-        let usuarioBuscadoActual = "";
+        let pokemonActualDisplay = { id: 9, nombre: "BLASTOISE", nivel: 3, esShiny: false, usuario: "System", tieneShinyReal: false };
+        let audioCtx = null;
 
-        let pokemonActualDisplay = { id: 25, nombre: "PIKACHU", nivel: 1, esShiny: false, usuario: "System", tieneShinyReal: false };
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(type) {
+            initAudio();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'click') {
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.exponentialRampToValueAtTime(900, now + 0.05);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
 
         async function obtenerDatosPokeAPI(pokemonId) {
             try {
@@ -368,15 +369,13 @@
                 return {
                     nombre: data.name.toUpperCase(),
                     normalSprite: `https://play.pokemonshowdown.com/sprites/xyani/${nombreLower}.gif`,
-                    shinySprite: `https://play.pokemonshowdown.com/sprites/xyani-shiny/${nombreLower}.gif`,
-                    iconSprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`
+                    shinySprite: `https://play.pokemonshowdown.com/sprites/xyani-shiny/${nombreLower}.gif`
                 };
             } catch (e) {
                 return {
-                    nombre: `POKÉMON #${pokemonId}`,
+                    nombre: `POKEMON #${pokemonId}`,
                     normalSprite: `https://play.pokemonshowdown.com/sprites/xyani/${pokemonId}.gif`,
-                    shinySprite: `https://play.pokemonshowdown.com/sprites/xyani-shiny/${pokemonId}.gif`,
-                    iconSprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`
+                    shinySprite: `https://play.pokemonshowdown.com/sprites/xyani-shiny/${pokemonId}.gif`
                 };
             }
         }
@@ -384,14 +383,14 @@
         function crearChispas() {
             const container = document.getElementById('sparkle-container');
             container.innerHTML = '';
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 8; i++) {
                 const p = document.createElement('div');
                 p.className = 'sparkle-particle';
-                p.style.width = '10px'; p.style.height = '10px';
+                p.style.width = '8px'; p.style.height = '8px';
                 p.style.left = '50%'; p.style.top = '50%';
-                const angle = (i / 10) * 2 * Math.PI;
-                p.style.setProperty('--tx', `${Math.cos(angle) * 60}px`);
-                p.style.setProperty('--ty', `${Math.sin(angle) * 60}px`);
+                const angle = (i / 8) * 2 * Math.PI;
+                p.style.setProperty('--tx', `${Math.cos(angle) * 50}px`);
+                p.style.setProperty('--ty', `${Math.sin(angle) * 50}px`);
                 container.appendChild(p);
             }
         }
@@ -406,33 +405,22 @@
                 nivel: nivel || 1,
                 esShiny: esShinyFinal,
                 usuario: usuario,
-                tieneShinyReal: tieneShiny,
-                normalSprite: apiData.normalSprite,
-                shinySprite: apiData.shinySprite
+                tieneShinyReal: tieneShiny
             };
 
-            const spriteImg = document.getElementById('pokemon-sprite');
-            const nameEl = document.getElementById('pokemon-name');
-            const idEl = document.getElementById('pokemon-id-display');
-            const ownerEl = document.getElementById('pokemon-owner');
-            const levelEl = document.getElementById('pokemon-level');
-            const shinyStatus = document.getElementById('shiny-status');
-
-            spriteImg.src = esShinyFinal ? apiData.shinySprite : apiData.normalSprite;
-            nameEl.textContent = apiData.nombre;
-            idEl.textContent = `/#${String(pokemonId).padStart(3, '0')}`;
-            ownerEl.textContent = `@${usuario}`;
-            levelEl.textContent = `Nv.${nivel || 1}`;
-
+            document.getElementById('pokemon-sprite').src = esShinyFinal ? apiData.shinySprite : apiData.normalSprite;
+            document.getElementById('pokemon-name').textContent = apiData.nombre;
+            document.getElementById('pokemon-level').textContent = `Nivel ${nivel || 1}`;
+            document.getElementById('pokemon-owner').textContent = `@${usuario}`;
+            
+            const shinyEl = document.getElementById('shiny-status');
             if (esShinyFinal) {
-                shinyStatus.textContent = "✨ SHINY";
-                shinyStatus.className = "text-[7px] text-[#f8d030] font-bold";
-                playRetroSound('shiny');
+                shinyEl.textContent = "Shiny ✨!";
+                shinyEl.style.color = "#d4af37";
                 crearChispas();
             } else {
-                shinyStatus.textContent = "NORMAL";
-                shinyStatus.className = "text-[7px] text-[#fca5a5] font-bold";
-                playRetroSound('normal');
+                shinyEl.textContent = "Shiny ✨?";
+                shinyEl.style.color = "#b8860b";
                 document.getElementById('sparkle-container').innerHTML = '';
             }
         }
@@ -440,145 +428,95 @@
         async function renderizarRegionActual() {
             const region = REGIONES[regionActualIndex];
             const contenedor = document.getElementById('contenedor-catalogo');
-            const boxTitle = document.getElementById('box-title');
-            const progressText = document.getElementById('region-progress-text');
-            const tapeteCaja = document.getElementById('pc-tapete');
-
-            tapeteCaja.style.backgroundImage = region.bg;
-
-            boxTitle.textContent = `${region.nombre}`;
+            document.getElementById('box-title').textContent = region.nombre;
             contenedor.innerHTML = '';
-
-            let desbloqueadosRegion = 0;
-            const totalRegion = region.max - region.min + 1;
 
             for (let id = region.min; id <= region.max; id++) {
                 const captura = capturasUsuarioActual.find(c => c.pokemon_id === id);
                 const loTiene = !!captura;
-                if (loTiene) desbloqueadosRegion++;
-
-                const slot = document.createElement('div');
-                slot.className = `pokemon-icon-slot flex flex-col items-center justify-center ${loTiene ? 'captured' : ''}`;
+                const item = document.createElement('div');
+                item.className = `pokemon-item ${loTiene ? '' : 'opacity-70'}`;
                 
                 const iconUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 
                 if (loTiene) {
-                    slot.innerHTML = `
-                        <span class="absolute top-1 left-1.5 text-[7px] text-[#7f1d1d] font-bold">#${id}</span>
-                        <img src="${iconUrl}" alt="PKMN #${id}" class="w-54 h-54 object-contain drop-shadow-md">
-                        ${captura.es_shiny ? '<span class="absolute top-0.5 right-1 text-[10px]">✨</span>' : ''}
+                    item.innerHTML = `
+                        <img src="${iconUrl}" alt="PKMN">
+                        <span class="pkmn-name">#${id}</span>
+                        ${captura.es_shiny ? '<span class="absolute top-0 right-0 text-xs">✨</span>' : ''}
                     `;
-
-                    slot.addEventListener('click', () => {
-                        playRetroSound('click');
+                    item.addEventListener('click', () => {
+                        playSound('click');
                         renderizarEnPantalla(captura.pokemon_id, captura.nivel, false, captura.username, captura.es_shiny);
                     });
                 } else {
-                    slot.innerHTML = `
-                        <span class="absolute top-1 left-1.5 text-[7px] text-[#7f1d1d] opacity-50 font-bold">#${id}</span>
-                        <img src="${iconUrl}" alt="???" class="w-24 h-24 object-contain silhouette-img">
-                        <span class="absolute bottom-1 right-1.5 text-[9px] text-[#7f1d1d] opacity-60 font-bold">?</span>
+                    item.innerHTML = `
+                        <img src="${iconUrl}" alt="???" class="silhouette">
+                        <span class="pkmn-name">#${id}</span>
                     `;
                 }
-
-                contenedor.appendChild(slot);
+                contenedor.appendChild(item);
             }
-
-            progressText.textContent = `DESBLOQUEADOS: ${desbloqueadosRegion}/${totalRegion}`;
         }
 
-        const SUPABASE_URL = 'https://kwscsikpzmlyemjaaqje.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3c2NzaWtwem1seWVtamFhcWplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzNDA4NzgsImV4cCI6MjEwNzkxNjg3OH0.LP7eLnDNI2KRFgmWnM2JCNY2FQM1KrzfayGF0cSvdVE';
-        const NOMBRE_TABLA = 'pokemon_capturados';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        async function consultarCatalogoUsuarioReal(nombreUsuario) {
-            playRetroSound('click');
-            const contenedor = document.getElementById('contenedor-catalogo');
-            usuarioBuscadoActual = nombreUsuario;
-            contenedor.innerHTML = '<p class="col-span-full text-[8px] text-[#7f1d1d] bg-white/90 p-4 rounded-lg border-2 border-[#450a0a] text-center py-24 font-bold">Cargando registros...</p>';
-
+        async function consultarUsuario(nombreUsuario) {
+            playSound('click');
             const { data, error } = await _supabase
-                .from(NOMBRE_TABLA)
+                .from('pokemon_capturados')
                 .select('*')
                 .ilike('username', nombreUsuario);
 
-            if (error) {
-                contenedor.innerHTML = `<p class="col-span-full text-[8px] text-red-700 text-center py-24 font-bold">Error: ${error.message}</p>`;
-                return;
+            if (!error) {
+                capturasUsuarioActual = data || [];
+                renderizarRegionActual();
             }
-
-            capturasUsuarioActual = data || [];
-            renderizarRegionActual();
         }
 
-        // CONTROL DE MÚSICA Y AUDIO
-        const soundToggle = document.getElementById('sound-toggle');
-        const soundText = document.getElementById('sound-text');
-        const soundIcon = document.getElementById('sound-icon');
-
-        soundToggle.addEventListener('click', () => {
-            if (!musicPlaying) {
-                soundText.textContent = 'AUDIO ON';
-                soundIcon.setAttribute('data-lucide', 'volume-2');
-                startBgMusic();
-                playRetroSound('click');
-            } else {
-                soundText.textContent = 'AUDIO OFF';
-                soundIcon.setAttribute('data-lucide', 'volume-x');
-                stopBgMusic();
-            }
-            lucide.createIcons();
-        });
-
-        document.getElementById('btn-shiny-toggle').addEventListener('click', () => {
-            playRetroSound('click');
-            if (!pokemonActualDisplay.tieneShinyReal) {
-                alert(`@${pokemonActualDisplay.usuario} no tiene este Pokémon en versión Shiny.`);
-                return;
-            }
-
-            const nuevoEstadoShiny = !pokemonActualDisplay.esShiny;
+        document.getElementById('shiny-status').addEventListener('click', () => {
+            playSound('click');
+            if (!pokemonActualDisplay.tieneShinyReal) return;
             renderizarEnPantalla(
                 pokemonActualDisplay.id,
                 pokemonActualDisplay.nivel,
-                nuevoEstadoShiny,
+                !pokemonActualDisplay.esShiny,
                 pokemonActualDisplay.usuario,
                 pokemonActualDisplay.tieneShinyReal
             );
         });
 
         document.getElementById('btn-prev-gen').addEventListener('click', () => {
-            playRetroSound('click');
+            playSound('click');
             regionActualIndex = (regionActualIndex - 1 + REGIONES.length) % REGIONES.length;
             renderizarRegionActual();
         });
 
         document.getElementById('btn-next-gen').addEventListener('click', () => {
-            playRetroSound('click');
+            playSound('click');
+            regionActualIndex = (regionActualIndex + 1) % REGIONES.length;
+            renderizarRegionActual();
+        });
+
+        document.getElementById('btn-next-gen-bottom').addEventListener('click', () => {
+            playSound('click');
             regionActualIndex = (regionActualIndex + 1) % REGIONES.length;
             renderizarRegionActual();
         });
 
         document.getElementById('btn-consultar').addEventListener('click', () => {
             const nick = document.getElementById('input-usuario').value.trim();
-            if (nick) consultarCatalogoUsuarioReal(nick);
+            if (nick) consultarUsuario(nick);
         });
 
         document.getElementById('input-usuario').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const nick = document.getElementById('input-usuario').value.trim();
-                if (nick) consultarCatalogoUsuarioReal(nick);
+                if (nick) consultarUsuario(nick);
             }
         });
 
         window.addEventListener('DOMContentLoaded', () => {
-            asignarFondoGeneralAleatorio();
             renderizarRegionActual();
-
-            const pokemonClasicos = [25, 6, 9, 3, 143, 94, 131, 133, 150];
-            const idAleatorio = pokemonClasicos[Math.floor(Math.random() * pokemonClasicos.length)];
-            renderizarEnPantalla(idAleatorio, 1, false, 'System', false);
+            renderizarEnPantalla(9, 3, false, 'System', false);
         });
     </script>
 </body>
