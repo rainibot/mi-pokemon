@@ -25,11 +25,11 @@
             color: #0f380f; 
         }
 
-        /* ESTRUCTURA INDEPENDIENTE ESTILO CARCASA GBA SP */
+        /* ESTRUCTURA EXTERIOR ESTILO POKÉDEX ROJA */
         .gba-shell { 
-            background-color: rgba(216, 216, 224, 0.95); 
-            border: 8px solid #90909c; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 4px 6px rgba(255,255,255,0.6); 
+            background-color: rgba(220, 38, 38, 0.95); 
+            border: 8px solid #991b1b; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 4px 6px rgba(255,255,255,0.4); 
             border-radius: 2rem; 
             backdrop-filter: blur(2px);
         }
@@ -39,17 +39,17 @@
         .btn-action { background: linear-gradient(180deg, #e0e0e0 0%, #b0b0bc 60%, #70707c 100%); border: 3px solid #000; box-shadow: 0 3px 0 #303038; cursor: pointer; }
         .btn-action:active { transform: translateY(2px); box-shadow: 0 1px 0 #303038; }
 
-        /* ESTILOS INTERIORES DE CAJA Y PANEL DE INFO */
+        /* ESTILOS INTERIORES DE CAJA Y PANEL DE INFO CON TONOS ROJOS */
         .pc-info-panel {
-            background-color: #3b3c4a;
-            border: 6px solid #202028;
+            background-color: #7f1d1d;
+            border: 6px solid #450a0a;
             border-radius: 1rem;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
         }
 
         .pc-box-container {
-            background-color: #3b3c4a;
-            border: 6px solid #202028;
+            background-color: #7f1d1d;
+            border: 6px solid #450a0a;
             border-radius: 1rem;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
         }
@@ -61,7 +61,7 @@
                 radial-gradient(#bae6fd 20%, transparent 20%);
             background-position: 0 0, 8px 8px;
             background-size: 16px 16px;
-            border: 4px solid #1e3a8a;
+            border: 4px solid #450a0a;
             border-radius: 0.5rem;
             box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
         }
@@ -79,8 +79,8 @@
 
         .pc-header-banner {
             background: linear-gradient(180deg, #ffffff 0%, #e0e0e8 100%);
-            border: 3px solid #888898;
-            box-shadow: 0 2px 0 #484858;
+            border: 3px solid #450a0a;
+            box-shadow: 0 2px 0 #2a0606;
             color: #282830;
         }
 
@@ -126,7 +126,7 @@
 
         /* Scrollbar personalizado */
         .custom-scroll::-webkit-scrollbar { width: 8px; }
-        .custom-scroll::-webkit-scrollbar-track { background: rgba(26, 26, 34, 0.8); border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(69, 10, 10, 0.8); border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #d8b030; border: 1px solid #886018; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #f5a623; }
     </style>
@@ -139,12 +139,12 @@
         <!-- BARRA SUPERIOR INDEPENDIENTE DE BÚSQUEDA Y CONSULTA -->
         <div class="gba-shell p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div class="flex items-center gap-2">
-                <i data-lucide="monitor" class="w-5 h-5 text-[#1e3a8a]"></i>
-                <span class="text-[9px] text-[#202028] tracking-widest uppercase font-bold">POKÉDEX NACIONAL DE REGIONES</span>
+                <i data-lucide="monitor" class="w-5 h-5 text-white"></i>
+                <span class="text-[9px] text-white tracking-widest uppercase font-bold">POKÉDEX NACIONAL DE REGIONES</span>
             </div>
 
             <div class="flex gap-2 w-full sm:w-auto">
-                <input type="text" id="input-usuario" placeholder="Nick de Twitch..." class="p-2 text-[9px] bg-white text-black border-2 border-[#70707c] rounded focus:outline-none w-full sm:w-60">
+                <input type="text" id="input-usuario" placeholder="Nick de Twitch..." class="p-2 text-[9px] bg-white text-black border-2 border-[#450a0a] rounded focus:outline-none w-full sm:w-60">
                 <button id="btn-consultar" class="btn-action px-4 py-2 text-[9px] font-bold rounded text-black shrink-0">BUSCAR</button>
             </div>
         </div>
@@ -157,7 +157,7 @@
                 <div class="pc-info-panel p-4 flex flex-col justify-between h-full">
                     <div>
                         <!-- Encabezado INFO PKMN -->
-                        <div class="bg-[#282830] border-2 border-[#181820] px-2 py-1.5 text-center mb-3 rounded">
+                        <div class="bg-[#450a0a] border-2 border-[#2a0606] px-2 py-1.5 text-center mb-3 rounded">
                             <span class="text-[9px] text-[#f8d030] font-bold tracking-widest">— INFO PKMN —</span>
                         </div>
 
@@ -168,14 +168,14 @@
                         </div>
 
                         <!-- Datos del Pokémon seleccionado -->
-                        <div class="bg-[#282830] border-2 border-[#181820] p-3 rounded text-white flex flex-col gap-1.5">
+                        <div class="bg-[#450a0a] border-2 border-[#2a0606] p-3 rounded text-white flex flex-col gap-1.5">
                             <div class="flex justify-between items-center">
                                 <h2 id="pokemon-name" class="text-[10px] font-bold text-[#f8f8f8] uppercase tracking-wider">PIKACHU</h2>
-                                <span id="shiny-status" class="text-[7px] text-[#888898] font-bold">NORMAL</span>
+                                <span id="shiny-status" class="text-[7px] text-[#fca5a5] font-bold">NORMAL</span>
                             </div>
-                            <p id="pokemon-id-display" class="text-[8px] text-[#a0a0b0]">/#025</p>
-                            <div class="flex justify-between items-center text-[8px] mt-1 pt-1 border-t border-[#404048]">
-                                <span id="pokemon-owner" class="text-[#88c0f0]">@System</span>
+                            <p id="pokemon-id-display" class="text-[8px] text-[#fecaca]">/#025</p>
+                            <div class="flex justify-between items-center text-[8px] mt-1 pt-1 border-t border-[#7f1d1d]">
+                                <span id="pokemon-owner" class="text-[#fca5a5]">@System</span>
                                 <span id="pokemon-level" class="text-[#f8d030]">Nv.1</span>
                             </div>
                         </div>
@@ -201,21 +201,21 @@
                     
                     <!-- Cabecera de Navegación por Regiones -->
                     <div class="pc-header-banner p-2 rounded flex items-center justify-between text-[8px] font-bold">
-                        <button id="btn-prev-gen" class="px-2 py-1 text-[#3b3c4a] hover:bg-[#c8c8d0] rounded border border-[#70707c]">◀ ANTERIOR</button>
-                        <span id="box-title" class="tracking-widest uppercase text-center text-[9px] text-[#1e3a8a]">KANTO (GEN 1)</span>
-                        <button id="btn-next-gen" class="px-2 py-1 text-[#3b3c4a] hover:bg-[#c8c8d0] rounded border border-[#70707c]">SIGUIENTE ▶</button>
+                        <button id="btn-prev-gen" class="px-2 py-1 text-[#7f1d1d] hover:bg-[#e0e0e8] rounded border border-[#450a0a]">◀ ANTERIOR</button>
+                        <span id="box-title" class="tracking-widest uppercase text-center text-[9px] text-[#7f1d1d]">KANTO (GEN 1)</span>
+                        <button id="btn-next-gen" class="px-2 py-1 text-[#7f1d1d] hover:bg-[#e0e0e8] rounded border border-[#450a0a]">SIGUIENTE ▶</button>
                     </div>
 
                     <!-- TAPETE CON FONDO DINÁMICO BASE64 POR REGIÓN -->
                     <div id="pc-tapete" class="pc-box-wallpaper h-[410px] p-4 custom-scroll overflow-y-auto">
                         <div id="contenedor-catalogo" class="grid grid-cols-3 gap-3 sm:gap-4 justify-items-center items-center">
-                            <p class="col-span-full text-[8px] text-[#1e3a8a] bg-white/85 p-4 rounded-lg border-2 border-[#1e3a8a] text-center py-10 font-bold">
+                            <p class="col-span-full text-[8px] text-[#7f1d1d] bg-white/90 p-4 rounded-lg border-2 border-[#450a0a] text-center py-10 font-bold">
                                 Ingresa tu nick arriba y pulsa Buscar para consultar tu Pokédex.
                             </p>
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-center text-[7px] text-[#a0a0b0] px-1">
+                    <div class="flex justify-between items-center text-[7px] text-white px-1">
                         <span id="region-progress-text">DESBLOQUEADOS: 0/151</span>
                         <span>SELECCIONAR: VER INFO</span>
                     </div>
@@ -436,7 +436,7 @@
                 crearChispas();
             } else {
                 shinyStatus.textContent = "NORMAL";
-                shinyStatus.className = "text-[7px] text-[#888898] font-bold";
+                shinyStatus.className = "text-[7px] text-[#fca5a5] font-bold";
                 playRetroSound('normal');
                 document.getElementById('sparkle-container').innerHTML = '';
             }
@@ -469,7 +469,7 @@
 
                 if (loTiene) {
                     slot.innerHTML = `
-                        <span class="absolute top-1 left-1.5 text-[7px] text-[#1e3a8a] font-bold">#${id}</span>
+                        <span class="absolute top-1 left-1.5 text-[7px] text-[#7f1d1d] font-bold">#${id}</span>
                         <img src="${iconUrl}" alt="PKMN #${id}" class="w-16 h-16 object-contain drop-shadow-md">
                         ${captura.es_shiny ? '<span class="absolute top-0.5 right-1 text-[10px]">✨</span>' : ''}
                     `;
@@ -480,9 +480,9 @@
                     });
                 } else {
                     slot.innerHTML = `
-                        <span class="absolute top-1 left-1.5 text-[7px] text-[#1e3a8a] opacity-50 font-bold">#${id}</span>
+                        <span class="absolute top-1 left-1.5 text-[7px] text-[#7f1d1d] opacity-50 font-bold">#${id}</span>
                         <img src="${iconUrl}" alt="???" class="w-16 h-16 object-contain silhouette-img">
-                        <span class="absolute bottom-1 right-1.5 text-[9px] text-[#1e3a8a] opacity-60 font-bold">?</span>
+                        <span class="absolute bottom-1 right-1.5 text-[9px] text-[#7f1d1d] opacity-60 font-bold">?</span>
                     `;
                 }
 
@@ -501,7 +501,7 @@
             playRetroSound('click');
             const contenedor = document.getElementById('contenedor-catalogo');
             usuarioBuscadoActual = nombreUsuario;
-            contenedor.innerHTML = '<p class="col-span-full text-[8px] text-[#1e3a8a] bg-white/85 p-4 rounded-lg border-2 border-[#1e3a8a] text-center py-24 font-bold">Cargando registros...</p>';
+            contenedor.innerHTML = '<p class="col-span-full text-[8px] text-[#7f1d1d] bg-white/90 p-4 rounded-lg border-2 border-[#450a0a] text-center py-24 font-bold">Cargando registros...</p>';
 
             const { data, error } = await _supabase
                 .from(NOMBRE_TABLA)
