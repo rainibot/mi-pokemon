@@ -57,11 +57,10 @@
                     <span id="shiny-status" class="flex items-center gap-1 font-bold">NORMAL</span>
                 </div>
 
-                <!-- Escenario aumentado -->
+                <!-- Escenario con GIF animado grande -->
                 <div class="my-auto flex flex-col items-center justify-center relative py-1">
-                    <!-- Contenedor ampliado a w-36 h-36 e imagen a w-32 h-32 -->
                     <div class="relative w-36 h-36 flex items-center justify-center">
-                        <img id="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pokémon" class="w-32 h-32 object-contain animate-float drop-shadow-md">
+                        <img id="pokemon-sprite" src="https://play.pokemonshowdown.com/sprites/ani/pikachu.gif" alt="Pokémon" class="w-32 h-32 object-contain animate-float drop-shadow-md">
                         <div id="sparkle-container" class="absolute inset-0 pointer-events-none z-30"></div>
                     </div>
                     <div class="mt-1 text-center">
@@ -175,7 +174,7 @@
             }
         }
 
-        // MOTOR DE MÚSICA RETRO DE FONDO
+        // MOTOR DE MÚSICA DE FONDO CONSTANTE
         const FREQS = { C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, SILENCE: 0 };
         const MELODIA_POKEMON = [
             'G4', 'C5', 'E5', 'G5', 'C5', 'E5', 'D5', 'B4',
@@ -250,20 +249,22 @@
             return "Otras Generaciones";
         }
 
+        // OBTENER DATOS Y GIFs ANIMADOS DESDE LA POKÉAPI / SHOWDOWN
         async function obtenerDatosPokeAPI(pokemonId) {
             try {
                 const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
                 const data = await res.json();
+                const nombreLower = data.name.toLowerCase();
                 return {
                     nombre: data.name.toUpperCase(),
-                    normalSprite: data.sprites.front_default,
-                    shinySprite: data.sprites.front_shiny || data.sprites.front_default
+                    normalSprite: `https://play.pokemonshowdown.com/sprites/ani/${nombreLower}.gif`,
+                    shinySprite: `https://play.pokemonshowdown.com/sprites/ani-shiny/${nombreLower}.gif`
                 };
             } catch (e) {
                 return {
                     nombre: `POKÉMON #${pokemonId}`,
-                    normalSprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`,
-                    shinySprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemonId}.png`
+                    normalSprite: `https://play.pokemonshowdown.com/sprites/ani/${pokemonId}.gif`,
+                    shinySprite: `https://play.pokemonshowdown.com/sprites/ani-shiny/${pokemonId}.gif`
                 };
             }
         }
@@ -346,7 +347,7 @@
             })
             .subscribe();
 
-        // 2. CONSULTAR POKÉDEX PERSONAL CON SPRITES UN POCO MÁS GRANDES
+        // 2. CONSULTAR POKÉDEX PERSONAL CON GIFs ANIMADOS
         async function consultarCatalogoUsuario(nombreUsuario) {
             playRetroSound('click');
             const contenedor = document.getElementById('contenedor-catalogo');
@@ -386,9 +387,8 @@
                     gridCards.className = "grid grid-cols-3 sm:grid-cols-4 gap-3";
 
                     for (let p of lista) {
-                        const img = p.es_shiny 
-                            ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${p.pokemon_id}.png`
-                            : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.pokemon_id}.png`;
+                        const apiInfo = await obtenerDatosPokeAPI(p.pokemon_id);
+                        const img = p.es_shiny ? apiInfo.shinySprite : apiInfo.normalSprite;
 
                         const card = document.createElement('div');
                         card.className = "bg-[#8bac0f] border-2 border-[#0f380f] p-2 flex flex-col items-center justify-between rounded pokemon-card shadow";
