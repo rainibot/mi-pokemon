@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon Retro Capturas y Catálogo</title>
+    <title>Pokémon GBA SP - Pokédex y Capturas</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fuente Pixel retro 'Press Start 2P' -->
@@ -14,9 +14,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { font-family: 'Press Start 2P', monospace; image-rendering: pixelated; user-select: none; }
-        body { background-color: #1a1a24; color: #000; }
-        .pixel-box { background-color: #f8f8d8; border: 4px solid #000; box-shadow: inset -4px -4px 0px #b8b898, inset 4px 4px 0px #ffffff, 4px 4px 0px rgba(0,0,0,0.5); }
-        .btn-shiny { background: linear-gradient(180deg, #ffe066 0%, #f5a623 50%, #d07000 100%); border: 4px solid #000; color: #000; text-shadow: 2px 2px 0px #fff; cursor: pointer; }
+        body { background-color: #121218; color: #0f380f; }
+        .gba-shell { background-color: #d8d8e0; border: 8px solid #90909c; box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 4px 6px rgba(255,255,255,0.6); border-radius: 2rem; }
+        .gba-screen-lens { background-color: #2b2b36; border: 4px solid #4a4a58; border-radius: 1rem; box-shadow: inset 0 4px 10px rgba(0,0,0,0.8); }
+        .lcd-screen { background-color: #8bac0f; border: 4px solid #0f380f; }
+        .btn-gba { background: linear-gradient(180deg, #ffe066 0%, #f5a623 60%, #c05800 100%); border: 3px solid #000; box-shadow: 0 4px 0 #602800, inset 0 2px 3px rgba(255,255,255,0.6); cursor: pointer; transition: all 0.05s ease; }
+        .btn-gba:active { transform: translateY(3px); box-shadow: 0 1px 0 #602800, inset 0 1px 2px rgba(0,0,0,0.4); }
+        .btn-action { background: linear-gradient(180deg, #e0e0e0 0%, #b0b0bc 60%, #70707c 100%); border: 3px solid #000; box-shadow: 0 3px 0 #303038; cursor: pointer; }
+        .btn-action:active { transform: translateY(2px); box-shadow: 0 1px 0 #303038; }
         .sparkle-particle { position: absolute; pointer-events: none; background-color: #fff; box-shadow: 0 0 6px #fff, 0 0 10px #ffe600; animation: sparkle-anim 0.8s ease-out forwards; clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%); }
         @keyframes sparkle-anim {
             0% { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
@@ -24,23 +29,30 @@
         }
         @keyframes flash-screen { 0%, 100% { opacity: 0; } 20%, 60% { opacity: 0.8; } 40%, 80% { opacity: 0.3; } }
         .shiny-flash { animation: flash-screen 0.6s ease-in-out; }
-        .scanlines::before { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%); background-size: 100% 4px; z-index: 10; pointer-events: none; }
-        @keyframes float-pokemon { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
+        .scanlines::before { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%); background-size: 100% 4px; z-index: 10; pointer-events: none; }
+        @keyframes float-pokemon { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
         .animate-float { animation: float-pokemon 2.5s ease-in-out infinite; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-4 gap-6">
 
-    <!-- SECCIÓN 1: PANTALLA DE ALERTAS EN TIEMPO REAL (OBS) -->
-    <div class="w-full max-w-sm bg-[#d0d0d8] p-4 rounded-3xl border-8 border-[#808088] shadow-2xl relative">
-        <div class="bg-[#202820] p-3 rounded-xl border-4 border-[#404048] scanlines relative shadow-inner">
-            <div id="screen-display" class="bg-[#8bac0f] border-4 border-[#0f380f] rounded p-3 text-[#0f380f] min-h-[220px] flex flex-col justify-between relative overflow-hidden">
-                
+    <!-- CONSOLA GBA SP: PANTALLA EN TIEMPO REAL (OBS) -->
+    <div class="w-full max-w-md gba-shell p-5 relative">
+        <div class="flex justify-between items-center mb-3 px-1 text-[8px] text-[#4a4a58] font-bold">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-red-600 inline-block shadow-sm"></span>
+                <span class="tracking-widest">POWER</span>
+            </div>
+            <span class="tracking-widest">GAME BOY ADVANCE SP</span>
+        </div>
+
+        <div class="gba-screen-lens p-3 scanlines relative shadow-inner">
+            <div id="screen-display" class="lcd-screen rounded p-3 text-[#0f380f] min-h-[220px] flex flex-col justify-between relative overflow-hidden">
                 <div id="flash-overlay" class="absolute inset-0 bg-white pointer-events-none opacity-0 z-20"></div>
 
                 <div class="flex justify-between items-center text-[9px] border-b-2 border-[#0f380f] pb-1">
-                    <span>STREAM OVERLAY</span>
-                    <span id="shiny-status" class="flex items-center gap-1">NORMAL</span>
+                    <span id="encounter-count">ENCOUNTERS: LIVE</span>
+                    <span id="shiny-status" class="flex items-center gap-1 font-bold">NORMAL</span>
                 </div>
 
                 <div class="my-auto flex flex-col items-center justify-center relative py-2">
@@ -50,35 +62,56 @@
                     </div>
                     <div class="mt-1 text-center">
                         <h2 id="pokemon-name" class="text-xs font-bold tracking-wide uppercase">PIKACHU</h2>
-                        <p id="pokemon-type" class="text-[7px] opacity-80 mt-0.5">#025</p>
+                        <p id="pokemon-type" class="text-[7px] opacity-80 mt-0.5">#025 - ELECTRIC</p>
                     </div>
                 </div>
 
-                <div class="bg-[#e0f0c0] border-2 border-[#0f380f] p-2 text-[8px] leading-relaxed min-h-[40px] flex items-center">
+                <div class="bg-[#9bbc0f] border-2 border-[#0f380f] p-2 text-[8px] leading-relaxed min-h-[40px] flex items-center">
                     <p id="dialog-text">Esperando capturas del chat...</p>
                 </div>
-
             </div>
+        </div>
+
+        <!-- Botón central grande estilo GBA SP -->
+        <div class="mt-4 flex justify-center">
+            <button id="btn-shiny-toggle" class="btn-gba w-full py-3 px-4 rounded-xl text-center text-xs font-bold tracking-wider text-black">
+                shiny ✨?
+            </button>
+        </div>
+
+        <div class="mt-3 flex justify-between items-center text-[7px] text-[#4a4a58] px-1 font-bold">
+            <div class="flex items-center gap-2">
+                <span>PROB:</span>
+                <select id="prob-select" class="bg-[#c8c8d0] border border-[#70707c] p-0.5 text-[7px] rounded">
+                    <option>1/4 (Súper Alta)</option>
+                </select>
+            </div>
+            <button id="btn-audio" class="btn-action px-2.5 py-1 rounded text-[7px] font-bold">🔊 AUDIO ON</button>
+        </div>
+        <div class="mt-2 pt-2 border-t border-[#b8b8c4] flex justify-between text-[6px] text-[#5a5a66]">
+            <span>SELECT: NUZLOCKE</span>
+            <span>START: POKÉDEX</span>
         </div>
     </div>
 
-    <!-- SECCIÓN 2: CONSULTA DE CATÁLOGO PERSONAL POR USUARIO -->
-    <div class="w-full max-w-lg pixel-box p-4 rounded-xl flex flex-col gap-3">
-        <h3 class="text-xs font-bold text-center uppercase">Revisa tu Pokédex Personal</h3>
+    <!-- SECCIÓN 2: CONSULTA DE POKÉDEX PERSONAL (ORGANIZADA POR GENERACIONES) -->
+    <div class="w-full max-w-2xl gba-shell p-5 flex flex-col gap-4">
+        <h3 class="text-xs font-bold text-center uppercase tracking-wider text-[#3a3a46]">Pokédex Personal del Espectador</h3>
         <div class="flex gap-2 justify-center">
-            <input type="text" id="input-usuario" placeholder="Tu nick de Twitch..." class="p-2 border-2 border-black text-[9px] bg-white w-2/3">
-            <button id="btn-consultar" class="btn-shiny px-3 py-2 text-[9px] font-bold">Buscar</button>
+            <input type="text" id="input-usuario" placeholder="Ingresa tu nick de Twitch..." class="p-2 border-2 border-[#4a4a58] text-[9px] bg-white w-2/3 rounded-lg">
+            <button id="btn-consultar" class="btn-action px-4 py-2 text-[9px] font-bold rounded-lg text-black">Buscar</button>
         </div>
 
-        <!-- Cuadrícula donde aparecerán los Pokémon capturados del usuario -->
-        <div id="contenedor-catalogo" class="grid grid-cols-4 gap-2 mt-2 max-h-60 overflow-y-auto p-2 bg-[#e0f0c0] border-2 border-black">
-            <p class="text-[8px] col-span-4 text-center py-4">Ingresa tu usuario arriba para ver tus capturas.</p>
+        <!-- Contenedor del Catálogo Organizado por Generaciones -->
+        <div id="contenedor-catalogo" class="flex flex-col gap-4 max-h-[500px] overflow-y-auto p-2 bg-[#2b2b36] rounded-xl border-4 border-[#4a4a58]">
+            <p class="text-[8px] text-white text-center py-8">Escribe tu usuario para desplegar tu colección por generaciones.</p>
         </div>
     </div>
 
     <script>
         lucide.createIcons();
         let audioCtx = null;
+        let soundEnabled = true;
 
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -86,6 +119,7 @@
         }
 
         function playRetroSound(type) {
+            if (!soundEnabled) return;
             initAudio();
             const now = audioCtx.currentTime;
             const osc = audioCtx.createOscillator();
@@ -97,6 +131,12 @@
                 osc.frequency.exponentialRampToValueAtTime(2637.02, now + 0.25);
                 gain.gain.setValueAtTime(0.2, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+            } else if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.08);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
             } else {
                 osc.type = 'square';
                 osc.frequency.setValueAtTime(300, now);
@@ -107,8 +147,14 @@
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start(now);
-            osc.stop(now + 0.15);
+            osc.stop(now + (type === 'click' ? 0.08 : 0.15));
         }
+
+        document.getElementById('btn-audio').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            document.getElementById('btn-audio').textContent = soundEnabled ? "🔊 AUDIO ON" : "🔇 AUDIO OFF";
+            playRetroSound('click');
+        });
 
         function createSparkles() {
             const container = document.getElementById('sparkle-container');
@@ -131,31 +177,53 @@
         const NOMBRE_TABLA = 'pokemon_capturados';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Función para obtener nombre y sprite oficial de la PokéAPI usando el ID del Pokémon
+        // Definición de Rangos por Generación
+        const GENERACIONES = [
+            { nombre: "Gen 1 (Kanto)", min: 1, max: 151 },
+            { nombre: "Gen 2 (Johto)", min: 152, max: 251 },
+            { nombre: "Gen 3 (Hoenn)", min: 252, max: 386 },
+            { nombre: "Gen 4 (Sinnoh)", min: 387, max: 493 },
+            { nombre: "Gen 5 (Unova)", min: 494, max: 649 },
+            { nombre: "Gen 6 (Kalos)", min: 650, max: 721 },
+            { nombre: "Gen 7 (Alola)", min: 722, max: 809 },
+            { nombre: "Gen 8 (Galar)", min: 810, max: 905 },
+            { nombre: "Gen 9 (Paldea)", min: 906, max: 1025 }
+        ];
+
+        function obtenerGeneracion(id) {
+            for (let gen of GENERACIONES) {
+                if (id >= gen.min && id <= gen.max) return gen.nombre;
+            }
+            return "Otras Generaciones";
+        }
+
+        // Obtener datos y sprites oficiales desde la PokéAPI
         async function obtenerDatosPokemon(pokemonId, esShiny) {
             try {
                 const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
                 const data = await res.json();
                 return {
                     nombre: data.name.toUpperCase(),
-                    imagen: esShiny 
-                        ? (data.sprites.front_shiny || data.sprites.front_default) 
-                        : data.sprites.front_default
+                    imagenNormal: data.sprites.front_default,
+                    imagenShiny: data.sprites.front_shiny || data.sprites.front_default
                 };
             } catch (e) {
                 return { 
                     nombre: `POKÉMON #${pokemonId}`, 
-                    imagen: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png` 
+                    imagenNormal: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`,
+                    imagenShiny: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemonId}.png`
                 };
             }
         }
 
         // 1. ESCUCHAR CAPTURAS EN TIEMPO REAL (OBS)
+        let ultimoPokemonEn vivo = null;
         _supabase
             .channel('cambios-capturas')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: NOMBRE_TABLA }, async payload => {
                 const c = payload.new;
                 const info = await obtenerDatosPokemon(c.pokemon_id, c.es_shiny);
+                ultimoPokemonEn vivo = { ...c, ...info };
                 
                 const spriteImg = document.getElementById('pokemon-sprite');
                 const nameEl = document.getElementById('pokemon-name');
@@ -165,7 +233,7 @@
                 const shinyStatus = document.getElementById('shiny-status');
                 const flash = document.getElementById('flash-overlay');
 
-                spriteImg.src = info.imagen;
+                spriteImg.src = c.es_shiny ? info.imagenShiny : info.imagenNormal;
                 nameEl.textContent = info.nombre;
                 typeEl.textContent = `#${String(c.pokemon_id).padStart(3, '0')} - Nvl ${c.nivel || 1}`;
                 
@@ -187,49 +255,99 @@
             })
             .subscribe();
 
-        // 2. FUNCIÓN PARA CONSULTAR EL CATÁLOGO PERSONAL USANDO 'username'
+        // 2. CONSULTAR Y ORGANIZAR POR GENERACIÓN Y ORDEN NUMÉRICO DE ID
         async function consultarCatalogoUsuario(nombreUsuario) {
+            playRetroSound('click');
             const contenedorCatalogo = document.getElementById('contenedor-catalogo');
-            contenedorCatalogo.innerHTML = '<p class="text-[8px] col-span-4 text-center py-4">Buscando capturas...</p>';
+            contenedorCatalogo.innerHTML = '<p class="text-[8px] text-white text-center py-8">Cargando Pokédex...</p>';
 
             const { data, error } = await _supabase
                 .from(NOMBRE_TABLA)
                 .select('*')
-                .eq('username', nombreUsuario)
-                .order('id', { ascending: false });
+                .eq('username', nombreUsuario);
 
             if (error) {
                 console.error("Error al consultar:", error);
-                contenedorCatalogo.innerHTML = '<p class="text-[8px] col-span-4 text-center text-red-600 py-4">Error al cargar datos.</p>';
+                contenedorCatalogo.innerHTML = '<p class="text-[8px] text-red-400 text-center py-8">Error al conectar con la base de datos.</p>';
                 return;
             }
 
             contenedorCatalogo.innerHTML = '';
 
             if (data.length === 0) {
-                contenedorCatalogo.innerHTML = '<p class="text-[8px] col-span-4 text-center py-4">Aún no tienes Pokémon capturados.</p>';
+                contenedorCatalogo.innerHTML = '<p class="text-[8px] text-white text-center py-8">Aún no tienes Pokémon registrados en tu Pokédex.</p>';
                 return;
             }
 
-            for (let pokemon of data) {
-                const info = await obtenerDatosPokemon(pokemon.pokemon_id, pokemon.es_shiny);
+            // Ordenar estrictamente por pokemon_id de menor a mayor
+            data.sort((a, b) => a.pokemon_id - b.pokemon_id);
 
-                const tarjeta = document.createElement('div');
-                tarjeta.className = "bg-white border-2 border-black p-2 flex flex-col items-center justify-center";
-                tarjeta.innerHTML = `
-                    <img src="${info.imagen}" alt="${info.nombre}" class="w-12 h-12 object-contain">
-                    <span class="text-[7px] font-bold mt-1 text-center">${info.nombre}</span>
-                    <span class="text-[6px] text-gray-600">Nvl ${pokemon.nivel || 1}</span>
-                    <span class="text-[6px] ${pokemon.es_shiny ? 'text-amber-600 font-bold' : 'text-gray-500'}">${pokemon.es_shiny ? '✨ SHINY' : 'Normal'}</span>
+            // Agrupar por Generaciones
+            const gruposGeneraciones = {};
+            for (let captura of data) {
+                const genNombre = obtenerGeneracion(captura.pokemon_id);
+                if (!gruposGeneraciones[genNombre]) gruposGeneraciones[genNombre] = [];
+                gruposGeneraciones[genNombre].push(captura);
+            }
+
+            // Renderizar cada bloque de generación
+            for (let [gen, capturasGen] of Object.entries(gruposGeneraciones)) {
+                const seccionGen = document.createElement('div');
+                seccionGen.className = "flex flex-col gap-2";
+                
+                let htmlTarjetas = '';
+                for (let pokemon of capturasGen) {
+                    const info = await obtenerDatosPokemon(pokemon.pokemon_id, pokemon.es_shiny);
+                    const spriteUrl = pokemon.es_shiny ? info.imagenShiny : info.imagenNormal;
+
+                    htmlTarjetas += `
+                        <div class="bg-[#8bac0f] border-2 border-[#0f380f] p-2 flex flex-col items-center justify-between rounded shadow">
+                            <span class="text-[6px] text-[#0f380f] font-bold self-start">#${String(pokemon.pokemon_id).padStart(3, '0')}</span>
+                            <img src="${spriteUrl}" alt="${info.nombre}" class="w-12 h-12 object-contain my-1">
+                            <span class="text-[6px] font-bold text-center text-[#0f380f] truncate w-full">${info.nombre}</span>
+                            <span class="text-[5px] text-[#204000]">Nvl ${pokemon.nivel || 1}</span>
+                            <span class="text-[5px] ${pokemon.es_shiny ? 'text-amber-900 font-extrabold' : 'text-[#0f380f]'}" data-id="${pokemon.id}">
+                                ${pokemon.es_shiny ? '✨ SHINY' : 'Normal'}
+                            </span>
+                        </div>
+                    `;
+                }
+
+                seccionGen.innerHTML = `
+                    <h4 class="text-[8px] text-[#b8b8d0] border-b border-[#4a4a58] pb-1 uppercase font-bold">${gen}</h4>
+                    <div class="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                        ${htmlTarjetas}
+                    </div>
                 `;
-                contenedorCatalogo.appendChild(tarjeta);
+                contenedorCatalogo.appendChild(seccionGen);
             }
         }
 
-        // Evento del botón de búsqueda
+        // Botón de búsqueda interactivo
         document.getElementById('btn-consultar').addEventListener('click', () => {
             const nick = document.getElementById('input-usuario').value.trim();
             if (nick) consultarCatalogoUsuario(nick);
+        });
+
+        // Botón interactivo para alternar Shiny / Normal en la pantalla principal
+        let modoShinyActual = false;
+        document.getElementById('btn-shiny-toggle').addEventListener('click', async () => {
+            playRetroSound('shiny');
+            modoShinyActual = !modoShinyActual;
+            const btn = document.getElementById('btn-shiny-toggle');
+            const screen = document.getElementById('screen-display');
+            const shinyStatus = document.getElementById('shiny-status');
+            const spriteImg = document.getElementById('pokemon-sprite');
+            
+            btn.textContent = modoShinyActual ? "normal 🟢?" : "shiny ✨?";
+            
+            if (ultimoPokemonEn vivo) {
+                spriteImg.src = modoShinyActual ? ultimoPokemonEn vivo.imagenShiny : ultimoPokemonEn vivo.imagenNormal;
+                shinyStatus.textContent = modoShinyActual ? "✨ SHINY!" : "NORMAL";
+                screen.style.backgroundColor = modoShinyActual ? '#f8f870' : '#8bac0f';
+                if (modoShinyActual) createSparkles();
+                else document.getElementById('sparkle-container').innerHTML = '';
+            }
         });
     </script>
 </body>
