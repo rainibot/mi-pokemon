@@ -138,7 +138,7 @@
                 osc.type = 'square';
                 osc.frequency.setValueAtTime(440, now);
                 osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.setValueAtTime(0.08, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
@@ -152,7 +152,7 @@
                     osc.type = 'triangle';
                     osc.frequency.setValueAtTime(freq, now + (idx * 0.06));
                     gain.gain.setValueAtTime(0, now + (idx * 0.06));
-                    gain.gain.linearRampToValueAtTime(0.15, now + (idx * 0.06) + 0.02);
+                    gain.gain.linearRampToValueAtTime(0.12, now + (idx * 0.06) + 0.02);
                     gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.06) + 0.25);
                     osc.connect(gain);
                     gain.connect(audioCtx.destination);
@@ -162,38 +162,40 @@
             } else if (type === 'normal') {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(220, now);
-                osc.frequency.linearRampToValueAtTime(110, now + 0.15);
-                gain.gain.setValueAtTime(0.08, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                osc.type = 'sine'; // Tono más suave y redondo
+                osc.frequency.setValueAtTime(330, now);
+                osc.frequency.linearRampToValueAtTime(165, now + 0.2);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.linearRampToValueAtTime(0.001, now + 0.2);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start(now);
-                osc.stop(now + 0.15);
+                osc.stop(now + 0.2);
             }
         }
 
-        // MOTOR DE MÚSICA DE FONDO CONSTANTE
-        const FREQS = { C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, SILENCE: 0 };
-        const MELODIA_POKEMON = [
-            'G4', 'C5', 'E5', 'G5', 'C5', 'E5', 'D5', 'B4',
-            'G4', 'B4', 'D5', 'F5', 'D5', 'B4', 'C5', 'G4',
-            'E4', 'G4', 'C5', 'E5', 'D5', 'C5', 'B4', 'A4',
-            'G4', 'A4', 'B4', 'C5', 'D5', 'G4', 'C5', 'C5'
+        // MOTOR DE MÚSICA RELAJANTE (TIPO CAJA DE MÚSICA / POKÉMON CENTER LENTO)
+        const FREQS = { C4: 261.63, E4: 329.63, G4: 392.00, B4: 493.88, C5: 523.25, E5: 659.25, G5: 783.99, REST: 0 };
+        const MELODIA_RELAJANTE = [
+            'C4', 'G4', 'E5', 'C5', 'G4', 'E4', 'C4', 'REST',
+            'B4', 'G4', 'D5', 'B4', 'G4', 'D4', 'B4', 'REST',
+            'A4', 'E5', 'C5', 'A4', 'E4', 'C4', 'A4', 'REST',
+            'G4', 'D5', 'B4', 'G4', 'D4', 'G4', 'C5', 'REST'
         ];
 
-        function playToneNote(freq, duration) {
+        function playRelaxingNote(freq, duration) {
             if (!freq || freq === 0 || !musicPlaying) return;
             const now = audioCtx.currentTime;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
 
-            osc.type = 'square';
+            // Usamos 'sine' para un sonido muy suave y cálido tipo caja de música
+            osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, now);
 
-            gain.gain.setValueAtTime(0.03, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + duration - 0.02);
+            // Volumen bajo y relajante con desvanecimiento muy limpio
+            gain.gain.setValueAtTime(0.015, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration - 0.05);
 
             osc.connect(gain);
             gain.connect(audioCtx.destination);
@@ -201,20 +203,20 @@
             osc.stop(now + duration);
         }
 
-        function stepMusicLoop() {
+        function stepRelaxingLoop() {
             if (!musicPlaying) return;
-            const noteName = MELODIA_POKEMON[currentStep];
-            playToneNote(FREQS[noteName], 0.22);
+            const noteName = MELODIA_RELAJANTE[currentStep];
+            playRelaxingNote(FREQS[noteName], 0.45); // Notas más espaciadas y lentas
 
-            currentStep = (currentStep + 1) % MELODIA_POKEMON.length;
-            musicTimer = setTimeout(stepMusicLoop, 220);
+            currentStep = (currentStep + 1) % MELODIA_RELAJANTE.length;
+            musicTimer = setTimeout(stepRelaxingLoop, 450); // Ritmo tranquilo
         }
 
         function startBgMusic() {
             initAudio();
             musicPlaying = true;
             currentStep = 0;
-            stepMusicLoop();
+            stepRelaxingLoop();
         }
 
         function stopBgMusic() {
@@ -249,7 +251,6 @@
             return "Otras Generaciones";
         }
 
-        // OBTENER DATOS Y GIFs ANIMADOS DESDE LA POKÉAPI / SHOWDOWN
         async function obtenerDatosPokeAPI(pokemonId) {
             try {
                 const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
@@ -347,7 +348,7 @@
             })
             .subscribe();
 
-        // 2. CONSULTAR POKÉDEX PERSONAL CON GIFs ANIMADOS
+        // 2. CONSULTAR POKÉDEX PERSONAL
         async function consultarCatalogoUsuario(nombreUsuario) {
             playRetroSound('click');
             const contenedor = document.getElementById('contenedor-catalogo');
@@ -441,7 +442,7 @@
             );
         });
 
-        // CONTROL DE MÚSICA Y AUDIO ON / OFF
+        // CONTROL DE MÚSICA RELAJANTE Y AUDIO ON / OFF
         const soundToggle = document.getElementById('sound-toggle');
         const soundText = document.getElementById('sound-text');
         const soundIcon = document.getElementById('sound-icon');
