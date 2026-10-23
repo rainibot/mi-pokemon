@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokédex Estilo Clásico</title>
+    <title>Mi Pokédex</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fuente Pixel retro 'Press Start 2P' -->
@@ -215,7 +215,7 @@
             opacity: 0.25;
         }
 
-        /* NUEVA ANIMACIÓN SHINY ESTILO ESTRELLA ARCADE */
+        /* ANIMACIÓN SHINY ESTRELLA ARCADE */
         .sparkle-particle { 
             position: absolute; 
             pointer-events: none; 
@@ -226,17 +226,9 @@
         }
 
         @keyframes arcade-sparkle {
-            0% { 
-                transform: translate(0, 0) scale(0.2) rotate(0deg); 
-                opacity: 0; 
-            }
-            20% { 
-                opacity: 1; 
-            }
-            100% { 
-                transform: translate(var(--tx), var(--ty)) scale(2.5) rotate(360deg); 
-                opacity: 0; 
-            }
+            0% { transform: translate(0, 0) scale(0.2) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(2.5) rotate(360deg); opacity: 0; }
         }
 
         @keyframes float-anim { 
@@ -251,7 +243,7 @@
             border-top: 2px solid #e0d4c8;
             text-align: center;
             font-size: 8px;
-            color: #6a5a4a;
+            color: #4a403a;
             font-weight: bold;
         }
     </style>
@@ -280,15 +272,15 @@
             
             <!-- PANEL IZQUIERDO -->
             <div class="left-panel">
-                <div id="pokemon-name" class="left-header">Blastoise</div>
+                <div id="pokemon-name" class="left-header">Cargando...</div>
                 
                 <div class="sprite-preview-box">
-                    <img id="pokemon-sprite" src="https://play.pokemonshowdown.com/sprites/xyani/blastoise.gif" alt="Pokémon" class="w-44 h-44 object-contain animate-float">
+                    <img id="pokemon-sprite" src="" alt="Pokémon" class="w-44 h-44 object-contain animate-float">
                     <div id="sparkle-container" class="absolute inset-0 pointer-events-none"></div>
                 </div>
 
                 <div class="info-bottom-box">
-                    <div id="pokemon-level" class="text-sm font-bold text-[#5a4a3a]">Nivel 3</div>
+                    <div id="pokemon-level" class="text-sm font-bold text-[#5a4a3a]">Nivel 1</div>
                     <div id="shiny-status" class="text-xs font-bold text-[#b8860b] cursor-pointer">Shiny ✨?</div>
                     <div id="pokemon-owner" class="text-[8px] text-[#8a7a6a]">@System</div>
                 </div>
@@ -331,9 +323,25 @@
             { nombre: "Paldea Pokédex", min: 906, max: 1025 }
         ];
 
+        // LISTA DE POKÉMON ICÓNICOS PARA LA BIENVENIDA ALEATORIA
+        const POKEMON_ICONICOS = [
+            25,  // Pikachu
+            6,   // Charizard
+            9,   // Blastoise
+            3,   // Venusaur
+            150, // Mewtwo
+            151, // Mew
+            94,  // Gengar
+            143, // Snorlax
+            133, // Eevee
+            448, // Lucario
+            384, // Rayquaza
+            248  // Tyranitar
+        ];
+
         let regionActualIndex = 0;
         let capturasUsuarioActual = [];
-        let pokemonActualDisplay = { id: 9, nombre: "BLASTOISE", nivel: 3, esShiny: false, usuario: "System", tieneShinyReal: false };
+        let pokemonActualDisplay = { id: 25, nombre: "PIKACHU", nivel: 1, esShiny: false, usuario: "System", tieneShinyReal: false };
         let isMusicPlaying = false;
 
         function toggleAudio() {
@@ -377,7 +385,6 @@
             }
         }
 
-        // ANIMACIÓN DE CHISPAS TIPO ESTRELLA GIRATORIA
         function crearChispas() {
             const container = document.getElementById('sparkle-container');
             container.innerHTML = '';
@@ -517,7 +524,10 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             renderizarRegionActual();
-            renderizarEnPantalla(9, 3, false, 'System', false);
+            
+            // SELECCIÓN ALEATORIA DE UN POKÉMON ICÓNICO AL ENTRAR A LA WEB
+            const idAleatorio = POKEMON_ICONICOS[Math.floor(Math.random() * POKEMON_ICONICOS.length)];
+            renderizarEnPantalla(idAleatorio, 1, false, 'System', false);
         });
     </script>
 </body>
