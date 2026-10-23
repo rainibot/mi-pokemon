@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokédex Estilo Clásico</title>
+    <title>Pokédex</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fuente Pixel retro 'Press Start 2P' -->
@@ -354,18 +354,21 @@
 </head>
 <body>
 
-    <!-- REPRODUCTOR DE MÚSICA CON LINK DIRECTO -->
+    <!-- REPRODUCTOR DE MÚSICA DE FONDO -->
     <audio id="bg-music" loop preload="auto">
         <source src="https://github.com/rainibot/TittleScreen/raw/refs/heads/main/TittleScreen.mp3" type="audio/mpeg">
         Tu navegador no soporta audio.
     </audio>
+
+    <!-- REPRODUCTOR PARA EL SONIDO DE CLIC (CAMBIA EL ENLACE POR EL DE TU GITHUB) -->
+    <audio id="sonido-clic" src="https://github.com/rainibot/TittleScreen/raw/refs/heads/main/pokemon_a_button_gba.mp3" preload="auto"></audio>
 
     <!-- PANTALLA DE BIENVENIDA -->
     <div id="splash-screen">
         <div class="splash-content">
             <div class="font-bold" style="font-size: 18px; animation: rgb-color-cycle 4s linear infinite;">POKÉDEX TWITCH</div>
             <div class="splash-gif-container">
-                <img src="https://files.catbox.moe/kyrpz3.gif" alt="GIF Bienvenida" class="animate-float">
+                <img src="https://play.pokemonshowdown.com/sprites/xyani/pikachu.gif" alt="GIF Bienvenida" class="animate-float">
             </div>
             <div class="blink-text">¡TOCA LA PANTALLA PARA INICIAR!</div>
         </div>
@@ -457,14 +460,14 @@
 
                     <!-- LISTA DE AVATARES (OCULTA POR DEFECTO) -->
                     <div id="avatar-selector-box" class="flex flex-wrap gap-1.5 justify-center hidden-selector mt-1 bg-[#f7f1e8] p-2 border border-[#d4c4b2] rounded">
-                        <img src="https://play.pokemonshowdown.com/sprites/trainers/red.png" alt="Red" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/red.png')">
-                        <img src="https://play.pokemonshowdown.com/sprites/trainers/blue.png" alt="Blue" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/blue.png')">
-                        <img src="https://play.pokemonshowdown.com/sprites/trainers/ethan.png" alt="Ethan" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/ethan.png')">
-                        <img src="https://play.pokemonshowdown.com/sprites/trainers/lyra.png" alt="Lyra" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/lyra.png')">
-                        <img src="https://play.pokemonshowdown.com/sprites/trainers/brendan.png" alt="Brendan" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/brendan.png')">
-                        <img src="https://play.pokemonshowdown.com/sprites/trainers/may.png" alt="May" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/may.png')">
-                        <img src="https://play.pokemonshowdown.com/sprites/trainers/lucas.png" alt="Lucas" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/lucas.png')">
-                        <img src="https://play.pokemonshowdown.com/sprites/trainers/dawn.png" alt="Dawn" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/dawn.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/red.png" alt="Red" class="trainer-avatar-option" onclick="reproducirSonidoGithub(); cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/red.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/blue.png" alt="Blue" class="trainer-avatar-option" onclick="reproducirSonidoGithub(); cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/blue.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/ethan.png" alt="Ethan" class="trainer-avatar-option" onclick="reproducirSonidoGithub(); cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/ethan.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/lyra.png" alt="Lyra" class="trainer-avatar-option" onclick="reproducirSonidoGithub(); cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/lyra.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/brendan.png" alt="Brendan" class="trainer-avatar-option" onclick="reproducirSonidoGithub(); cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/brendan.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/may.png" alt="May" class="trainer-avatar-option" onclick="reproducirSonidoGithub(); cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/may.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/lucas.png" alt="Lucas" class="trainer-avatar-option" onclick="reproducirSonidoGithub(); cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/lucas.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/dawn.png" alt="Dawn" class="trainer-avatar-option" onclick="reproducirSonidoGithub(); cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/dawn.png')">
                     </div>
 
                     <!-- SECCIÓN DE MEDALLAS -->
@@ -561,7 +564,19 @@
         let pokemonActualDisplay = { id: 25, nombre: "PIKACHU", nivel: 1, fecha: "---", esShiny: false, usuario: "System", tieneShinyReal: false };
         let isMusicPlaying = false;
 
+        // FUNCIÓN PARA REPRODUCIR TU MP3 DE GITHUB
+        function reproducirSonidoGithub() {
+            const audio = document.getElementById('sonido-clic');
+            if (audio) {
+                audio.currentTime = 0; // Reinicia el audio para permitir clics rápidos
+                audio.play().catch(err => {
+                    console.warn("Reproducción de audio bloqueada o enlace incorrecto:", err);
+                });
+            }
+        }
+
         document.getElementById('splash-screen').addEventListener('click', () => {
+            reproducirSonidoGithub();
             const music = document.getElementById('bg-music');
             const btn = document.getElementById('sound-toggle');
             
@@ -587,6 +602,7 @@
         });
 
         function toggleAudio() {
+            reproducirSonidoGithub();
             const music = document.getElementById('bg-music');
             const btn = document.getElementById('sound-toggle');
             
@@ -776,6 +792,7 @@
                         ${captura.es_shiny ? '<span class="absolute top-0 right-0 text-xs">✨</span>' : ''}
                     `;
                     item.addEventListener('click', () => {
+                        reproducirSonidoGithub();
                         renderizarEnPantalla(captura.pokemon_id, captura.nivel, captura.created_at || captura.fecha, false, captura.username, captura.es_shiny);
                     });
                 } else {
@@ -783,6 +800,9 @@
                         <img src="${iconUrl}" alt="???" class="silhouette">
                         <span class="pkmn-name">#${id}</span>
                     `;
+                    item.addEventListener('click', () => {
+                        reproducirSonidoGithub();
+                    });
                 }
                 contenedor.appendChild(item);
             }
@@ -810,6 +830,7 @@
         }
 
         document.getElementById('toggle-avatar-selector').addEventListener('click', () => {
+            reproducirSonidoGithub();
             const selectorBox = document.getElementById('avatar-selector-box');
             selectorBox.classList.toggle('hidden-selector');
         });
@@ -869,12 +890,14 @@
         }
 
         document.getElementById('btn-ir-trainer').addEventListener('click', () => {
+            reproducirSonidoGithub();
             actualizarPaginaEntrenador();
             document.getElementById('view-pokedex').classList.add('hidden-app');
             document.getElementById('view-trainer').classList.remove('hidden-app');
         });
 
         document.getElementById('btn-volver-pokedex').addEventListener('click', () => {
+            reproducirSonidoGithub();
             document.getElementById('view-trainer').classList.add('hidden-app');
             document.getElementById('view-pokedex').classList.remove('hidden-app');
         });
@@ -882,6 +905,7 @@
         document.getElementById('sound-toggle').addEventListener('click', toggleAudio);
 
         document.getElementById('shiny-status').addEventListener('click', () => {
+            reproducirSonidoGithub();
             if (!pokemonActualDisplay.tieneShinyReal) return;
             renderizarEnPantalla(
                 pokemonActualDisplay.id,
@@ -894,11 +918,13 @@
         });
 
         function cambiarSiguienteRegion() {
+            reproducirSonidoGithub();
             regionActualIndex = (regionActualIndex + 1) % REGIONES.length;
             renderizarRegionActual();
         }
 
         function cambiarAnteriorRegion() {
+            reproducirSonidoGithub();
             regionActualIndex = (regionActualIndex - 1 + REGIONES.length) % REGIONES.length;
             renderizarRegionActual();
         }
@@ -907,12 +933,14 @@
         document.getElementById('btn-next-gen').addEventListener('click', cambiarSiguienteRegion);
 
         document.getElementById('btn-consultar').addEventListener('click', () => {
+            reproducirSonidoGithub();
             const nick = document.getElementById('input-usuario').value.trim();
             if (nick) consultarUsuario(nick);
         });
 
         document.getElementById('input-usuario').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
+                reproducirSonidoGithub();
                 const nick = document.getElementById('input-usuario').value.trim();
                 if (nick) consultarUsuario(nick);
             }
