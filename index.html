@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokédex</title>
+    <title>Pokédex Estilo Clásico</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fuente Pixel retro 'Press Start 2P' -->
@@ -25,9 +25,11 @@
             align-items: center;
             justify-content: center;
             padding: 1rem;
+            perspective: 1200px; /* Necesario para el efecto 3D */
+            overflow-x: hidden;
         }
 
-        /* PANTALLA DE BIENVENIDA SIN NINGÚN CUADRO */
+        /* PANTALLA DE BIENVENIDA SIN CUADRO */
         #splash-screen {
             position: fixed;
             inset: 0;
@@ -38,7 +40,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 24px;
+            gap: 28px;
             z-index: 100;
             cursor: pointer;
             transition: opacity 0.5s ease;
@@ -48,7 +50,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 24px;
             text-align: center;
         }
 
@@ -66,24 +68,32 @@
             object-fit: contain;
         }
 
+        /* TAMAÑO DE LETRA AUMENTADO, RGB Y PARPADEO */
         .blink-text {
-            font-size: 10px;
-            color: #5a4a3a;
-            line-height: 1.6;
-            animation: text-blink 1.2s infinite;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+            font-size: 15px;
+            line-height: 1.8;
+            animation: text-blink 1.2s infinite, rgb-color-cycle 4s linear infinite;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         @keyframes text-blink {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+            50% { opacity: 0.4; }
         }
 
-        /* CONTENEDOR PRINCIPAL DE LA POKÉDEX (OCULTO AL INICIO) */
+        @keyframes rgb-color-cycle {
+            0% { color: #ff3333; }
+            25% { color: #ff33ff; }
+            50% { color: #33ffff; }
+            75% { color: #33ff33; }
+            100% { color: #ff3333; }
+        }
+
         .hidden-app {
             display: none !important;
         }
 
+        /* CONTENEDOR PRINCIPAL CON PROPIEDADES 3D */
         .pokedex-container {
             width: 100%;
             max-width: 950px;
@@ -95,6 +105,29 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.4s ease;
+        }
+
+        /* CLASES PARA LA ANIMACIÓN DE CAMBIO DE HOJA (PAGE FLIP) */
+        .page-flip-out {
+            transform: rotateY(90deg) scale(0.9);
+            opacity: 0;
+        }
+
+        .page-flip-in {
+            animation: pageFlipIn 0.6s cubic-bezier(0.4, 0.2, 0.2, 1) forwards;
+        }
+
+        @keyframes pageFlipIn {
+            0% {
+                transform: rotateY(-90deg) scale(0.9);
+                opacity: 0;
+            }
+            100% {
+                transform: rotateY(0deg) scale(1);
+                opacity: 1;
+            }
         }
 
         .top-search-bar {
@@ -103,6 +136,7 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 4px;
+            flex-wrap: wrap;
         }
 
         .search-input {
@@ -113,7 +147,7 @@
             font-size: 10px;
             color: #333;
             outline: none;
-            width: 260px;
+            width: 220px;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
@@ -121,9 +155,9 @@
             background: linear-gradient(180deg, #d8d8d8 0%, #a8a8a8 100%);
             border: 3px solid #4a403a;
             box-shadow: 0 3px 0 #2a201a;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
-            padding: 10px 18px;
+            padding: 10px 14px;
             cursor: pointer;
             color: #222;
         }
@@ -161,8 +195,9 @@
         .sprite-preview-box {
             background-color: #ffffff;
             border: 3px solid #b5a493;
-            margin: 16px;
-            height: 260px;
+            margin: 16px 16px 0 16px;
+            flex-grow: 1;
+            min-height: 250px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -173,13 +208,13 @@
         }
 
         .info-bottom-box {
-            padding: 20px;
+            padding: 10px 12px;
             text-align: center;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 12px;
-            margin-top: auto;
+            gap: 6px;
+            margin-top: 16px;
             border-top: 3px solid #d4c4b2;
             background: #e8dcd0;
         }
@@ -243,10 +278,14 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-            cursor: pointer;
+            cursor: grab;
             transition: transform 0.1s ease;
             background: transparent;
             border: none;
+        }
+
+        .pokemon-item:active {
+            cursor: grabbing !important;
         }
 
         .pokemon-item:hover {
@@ -258,6 +297,7 @@
             width: 100px;
             height: 100px;
             object-fit: contain;
+            pointer-events: none;
         }
 
         .pokemon-item .pkmn-name {
@@ -297,10 +337,40 @@
             margin-top: auto;
             padding-top: 10px;
             border-top: 2px solid #e0d4c8;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: 8px;
             color: #6a5a4a;
             font-weight: bold;
+        }
+
+        /* ESTILOS PARA LAS MEDALLAS Y SELECTOR DE AVATAR */
+        .badge-locked { filter: grayscale(100%) brightness(0.3); opacity: 0.35; }
+        .badge-unlocked { filter: none; opacity: 1; animation: bounce-badge 1.5s infinite; }
+        @keyframes bounce-badge {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .trainer-avatar-option {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+            cursor: pointer;
+            border: 2px solid #b5a493;
+            border-radius: 4px;
+            background: #f7f1e8;
+            padding: 2px;
+            transition: transform 0.1s;
+        }
+        .trainer-avatar-option:hover {
+            transform: scale(1.1);
+            border-color: #ff6b35;
+        }
+
+        .hidden-selector {
+            display: none !important;
         }
     </style>
 </head>
@@ -308,17 +378,16 @@
 
     <!-- REPRODUCTOR DE MÚSICA CON LINK DIRECTO -->
     <audio id="bg-music" loop preload="auto">
-        <source src="https://github.com/rainibot/TittleScreen/raw/refs/heads/main/TittleScreen.mp3" type="audio/mpeg">
+        <source src="https://vgmsite.com/soundtracks/pokemon-red-blue-yellow/rrybcqkwxq/101-pallet-town.mp3" type="audio/mpeg">
         Tu navegador no soporta audio.
     </audio>
 
-    <!-- PANTALLA DE BIENVENIDA SIN NINGÚN CUADRO -->
+    <!-- PANTALLA DE BIENVENIDA -->
     <div id="splash-screen">
         <div class="splash-content">
-            <div class="text-xs font-bold text-[#5a4a3a]" style="font-size: 14px;">POKÉDEX TWITCH</div>
+            <div class="font-bold" style="font-size: 18px; animation: rgb-color-cycle 4s linear infinite;">POKÉDEX TWITCH</div>
             <div class="splash-gif-container">
-                <!-- Puedes cambiar este enlace por cualquier otro GIF -->
-                <img src="https://files.catbox.moe/kyrpz3.gif" alt="GIF Bienvenida" class="animate-float">
+                <img src="https://play.pokemonshowdown.com/sprites/xyani/pikachu.gif" alt="GIF Bienvenida" class="animate-float">
             </div>
             <div class="blink-text">¡TOCA LA PANTALLA PARA INICIAR!</div>
         </div>
@@ -327,31 +396,46 @@
     <!-- APLICACIÓN PRINCIPAL (POKÉDEX) -->
     <div id="app-main" class="pokedex-container hidden-app">
         
-        <!-- BARRA SUPERIOR DE BÚSQUEDA -->
+        <!-- BARRA SUPERIOR DE BÚSQUEDA Y NAVEGACIÓN -->
         <div class="top-search-bar">
             <input type="text" id="input-usuario" class="search-input" placeholder="Nick de Twitch...">
-            <div class="flex gap-2">
+            <div class="flex gap-2 flex-wrap items-center">
                 <button id="btn-consultar" class="btn-buscar">BUSCAR</button>
                 <button id="sound-toggle" class="btn-buscar" title="Activar Audio">🔊 AUDIO ON</button>
+                <button id="btn-ir-trainer" class="arrow-btn" title="Ver Tarjeta de Entrenador">➡</button>
             </div>
         </div>
 
-        <!-- PANELES -->
-        <div class="main-panels">
+        <!-- PANELES DE LA POKÉDEX -->
+        <div id="view-pokedex" class="main-panels">
             
             <!-- PANEL IZQUIERDO -->
             <div class="left-panel">
                 <div id="pokemon-name" class="left-header">Cargando...</div>
                 
+                <!-- CUADRO BLANCO DEL POKÉMON -->
                 <div class="sprite-preview-box">
-                    <img id="pokemon-sprite" src="" alt="Pokémon" class="w-44 h-44 object-contain animate-float">
+                    <img id="pokemon-sprite" src="" alt="Pokémon" class="w-56 h-56 object-contain animate-float">
                     <div id="sparkle-container" class="absolute inset-0 pointer-events-none"></div>
                 </div>
 
                 <div class="info-bottom-box">
-                    <div id="pokemon-level" class="text-sm font-bold text-[#5a4a3a]">Nivel 1</div>
-                    <div id="shiny-status" class="text-xs font-bold text-[#b8860b] cursor-pointer">Shiny ✨?</div>
-                    <div id="pokemon-owner" class="text-[8px] text-[#8a7a6a]">@System</div>
+                    <div class="flex justify-between items-center px-4">
+                        <div id="pokemon-types" class="text-[8px] font-bold text-[#7a5a3a] tracking-wider">TIPO: ---</div>
+                        <!-- POKÉBALL DE CAPTURA -->
+                        <div id="pokemon-ball-container" class="flex items-center gap-1.5 text-[8px] font-bold text-[#5a4a3a]" title="Pokéball de captura">
+                            BALL: <img id="pokemon-ball-img" src="" alt="Pokéball" class="w-8 h-8 inline-block object-contain">
+                        </div>
+                    </div>
+                    <div id="pokemon-moves" class="text-[7px] font-bold text-[#4a607a] tracking-wider">MOVS: --- / ---</div>
+                    <div class="flex justify-around items-center pt-1">
+                        <div id="pokemon-level" class="text-xs font-bold text-[#5a4a3a]">Nivel 1</div>
+                        <div id="pokemon-date" class="text-[8px] font-bold text-[#6a5a4a]">FECHA: ---</div>
+                    </div>
+                    <div class="flex justify-around items-center pt-1">
+                        <div id="shiny-status" class="text-xs font-bold text-[#b8860b] cursor-pointer">Shiny ✨?</div>
+                        <div id="pokemon-owner" class="text-[8px] text-[#8a7a6a]">@System</div>
+                    </div>
                 </div>
             </div>
 
@@ -365,12 +449,79 @@
 
                 <div id="contenedor-catalogo" class="pokemon-grid"></div>
 
-                <!-- CONTADOR DE REGIÓN -->
-                <div id="region-counter" class="region-counter-footer">
-                    Tienes: 0/151
+                <!-- CONTADOR DE REGIÓN Y FLECHA INFERIOR DERECHA -->
+                <div class="region-counter-footer">
+                    <span id="region-counter">Tienes: 0/151</span>
+                    <button id="btn-next-gen-footer" class="arrow-btn" style="width: 28px; height: 28px; font-size: 10px;" title="Siguiente Región">❯</button>
                 </div>
             </div>
 
+        </div>
+
+        <!-- SEGUNDA PÁGINA: TARJETA DE ENTRENADOR, AVATARES Y MEDALLAS -->
+        <div id="view-trainer" class="hidden-app">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b-2 border-[#d4c4b2]">
+                <button id="btn-volver-pokedex" class="btn-buscar">⬅ VOLVER A POKÉDEX</button>
+                <span class="text-xs font-bold text-[#5a4a3a]">TARJETA DE ENTRENADOR</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start bg-[#ede2d5] border-4 border-[#b5a493] rounded-lg p-6">
+                <!-- SECCIÓN IZQUIERDA: IMAGEN DEL ENTRENADOR Y SELECTOR -->
+                <div class="flex flex-col items-center justify-center bg-white border-3 border-[#b5a493] rounded-md p-5 gap-3 shadow-inner md:col-span-1">
+                    <div class="text-xs font-bold text-[#5a4a3a]" id="trainer-card-name">@System</div>
+                    <div class="w-32 h-32 flex items-center justify-center bg-[#f7f1e8] border-2 border-[#d4c4b2] rounded-md overflow-hidden">
+                        <img id="trainer-avatar-img" src="https://play.pokemonshowdown.com/sprites/trainers/red.png" alt="Entrenador" class="w-28 h-28 object-contain animate-float">
+                    </div>
+                    
+                    <!-- TEXTO CLICKEABLE PARA DESPLEGAR EL SELECTOR -->
+                    <span id="toggle-avatar-selector" class="text-[7px] text-[#ff6b35] font-bold text-center mt-1 cursor-pointer underline hover:text-[#d35400]">
+                        ▼ ELIGE TU ENTRENADOR ▼
+                    </span>
+
+                    <!-- LISTA DE AVATARES (OCULTA POR DEFECTO) -->
+                    <div id="avatar-selector-box" class="flex flex-wrap gap-1.5 justify-center hidden-selector mt-1 bg-[#f7f1e8] p-2 border border-[#d4c4b2] rounded">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/red.png" alt="Red" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/red.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/blue.png" alt="Blue" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/blue.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/ethan.png" alt="Ethan" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/ethan.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/lyra.png" alt="Lyra" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/lyra.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/brendan.png" alt="Brendan" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/brendan.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/may.png" alt="May" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/may.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/lucas.png" alt="Lucas" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/lucas.png')">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/dawn.png" alt="Dawn" class="trainer-avatar-option" onclick="cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/dawn.png')">
+                    </div>
+
+                    <!-- SECCIÓN DE MEDALLAS -->
+                    <div class="w-full border-t-2 border-[#d4c4b2] pt-3 mt-1 flex flex-col gap-2">
+                        <span class="text-[8px] font-bold text-[#5a4a3a] text-center">MEDALLAS DE REGIÓN</span>
+                        <div id="badges-container" class="grid grid-cols-3 gap-2 justify-items-center"></div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN DERECHA: STATS Y DESGLOSE POR REGIÓN -->
+                <div class="flex flex-col gap-3 text-[8px] text-[#4a403a] md:col-span-2 max-h-[460px] overflow-y-auto pr-1">
+                    <div class="flex justify-between bg-white p-2.5 rounded border border-[#d4c4b2]">
+                        <span>GLOBAL (TOTAL):</span>
+                        <span id="stat-total" class="font-bold text-[#2a201a]">0 / 1025</span>
+                    </div>
+                    <div class="flex justify-between bg-white p-2.5 rounded border border-[#d4c4b2]">
+                        <span>SHINYS TOTALES:</span>
+                        <span id="stat-shinys" class="font-bold text-[#b8860b]">0 ✨</span>
+                    </div>
+                    <div class="flex justify-between bg-white p-2.5 rounded border border-[#d4c4b2]">
+                        <span>NIVEL PROMEDIO:</span>
+                        <span id="stat-lvl" class="font-bold text-[#2a201a]">Lv. 1</span>
+                    </div>
+                    <div class="flex justify-between bg-white p-2.5 rounded border border-[#d4c4b2]">
+                        <span>COMPLECIÓN GLOBAL:</span>
+                        <span id="stat-percent" class="font-bold text-[#2a201a]">0%</span>
+                    </div>
+                    
+                    <div class="text-[9px] font-bold text-[#5a4a3a] mt-2 border-b border-[#d4c4b2] pb-1">CAPTURAS POR REGIÓN:</div>
+                    
+                    <!-- Contenedor generado por JS para el desglose regional -->
+                    <div id="regions-breakdown" class="flex flex-col gap-2"></div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -381,22 +532,56 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const REGIONES = [
-            { nombre: "Kanto Pokédex", min: 1, max: 151 },
-            { nombre: "Johto Pokédex", min: 152, max: 251 },
-            { nombre: "Hoenn Pokédex", min: 252, max: 386 },
-            { nombre: "Sinnoh Pokédex", min: 387, max: 493 },
-            { nombre: "Unova Pokédex", min: 494, max: 649 },
-            { nombre: "Kalos Pokédex", min: 650, max: 721 },
-            { nombre: "Alola Pokédex", min: 722, max: 809 },
-            { nombre: "Galar Pokédex", min: 810, max: 905 },
-            { nombre: "Paldea Pokédex", min: 906, max: 1025 }
+            { nombre: "Kanto", min: 1, max: 151, badge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/1.png" },
+            { nombre: "Johto", min: 152, max: 251, badge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/9.png" },
+            { nombre: "Hoenn", min: 252, max: 386, badge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/17.png" },
+            { nombre: "Sinnoh", min: 387, max: 493, badge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/25.png" },
+            { nombre: "Unova", min: 494, max: 649, badge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/33.png" },
+            { nombre: "Kalos", min: 650, max: 721, badge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/41.png" },
+            { nombre: "Alola", min: 722, max: 809, badge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/51.png" },
+            { nombre: "Galar", min: 810, max: 905, badge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/59.png" },
+            { nombre: "Paldea", min: 906, max: 1025, badge: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/badges/67.png" }
         ];
+
+        const TRADUCCION_TIPOS = {
+            normal: "Normal", fire: "Fuego", water: "Agua", grass: "Planta",
+            electric: "Eléctrico", ice: "Hielo", fighting: "Lucha", poison: "Veneno",
+            ground: "Tierra", flying: "Volador", psychic: "Psíquico", bug: "Bicho",
+            rock: "Roca", ghost: "Fantasma", dragon: "Dragón", dark: "Siniestro",
+            steel: "Acero", fairy: "Hada"
+        };
+
+        const MEJORES_MOVIMIENTOS = {
+            1: ["LATIGO CEPA", "RAYO SOLAR"],     
+            4: ["ASCUAS", "LANALLAMAS"],          
+            7: ["PISTOLA AGUA", "HIDROBOMBA"],    
+            25: ["IMPACTRUENO", "RAYO"],          
+            6: ["LANALLAMAS", "VUELO"],           
+            9: ["HIDROBOMBA", "SURF"],            
+            3: ["RAYO SOLAR", "BOMBA LODO"],      
+            150: ["PSÍQUICO", "BOLA SOMBRA"],     
+            151: ["PSÍQUICO", "METRÓNOMO"],       
+            94: ["BOLA SOMBRA", "RAYO CONFUSO"],  
+            143: ["GOLPE CUERPO", "DESCANSO"],    
+            133: ["RAPIDEZ", "ATAQUE RÁPIDO"],    
+            448: ["ESFERA AURAL", "SOCRRO"],      
+            384: ["VELOCIDAD EXTREMA", "ENFADO"]   
+        };
 
         const POKEMON_ICONICOS = [25, 6, 9, 3, 150, 151, 94, 143, 133, 448, 384, 248];
 
+        const POKEBALLS = {
+            master: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png",
+            ultra: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png",
+            great: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png",
+            poke: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
+            luxury: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/luxury-ball.png"
+        };
+
         let regionActualIndex = 0;
         let capturasUsuarioActual = [];
-        let pokemonActualDisplay = { id: 25, nombre: "PIKACHU", nivel: 1, esShiny: false, usuario: "System", tieneShinyReal: false };
+        let usuarioActualNombre = "System";
+        let pokemonActualDisplay = { id: 25, nombre: "PIKACHU", nivel: 1, fecha: "---", esShiny: false, usuario: "System", tieneShinyReal: false };
         let isMusicPlaying = false;
 
         document.getElementById('splash-screen').addEventListener('click', () => {
@@ -420,7 +605,7 @@
                 
                 renderizarRegionActual();
                 const idAleatorio = POKEMON_ICONICOS[Math.floor(Math.random() * POKEMON_ICONICOS.length)];
-                renderizarEnPantalla(idAleatorio, 1, false, 'System', false);
+                renderizarEnPantalla(idAleatorio, 50, "---", true, 'System', true);
             }, 500);
         });
 
@@ -440,9 +625,26 @@
             } else {
                 music.pause();
                 isMusicPlaying = false;
-                btn.textContent = "🔇 AUDIO OFF";
+                btn.textContent = "🔊 AUDIO OFF";
                 btn.style.background = "linear-gradient(180deg, #d8d8d8 0%, #a8a8a8 100%)";
             }
+        }
+
+        function obtenerPokeballSegunRareza(pokemonId, nivel, esShiny) {
+            const legendarios = [144, 145, 146, 150, 151, 249, 250, 251, 384, 385, 386, 483, 484, 487, 493];
+            if (legendarios.includes(pokemonId)) {
+                return POKEBALLS.master;
+            }
+            if (esShiny || (nivel && nivel >= 50)) {
+                return POKEBALLS.luxury;
+            }
+            if (POKEMON_ICONICOS.includes(pokemonId) || (nivel && nivel >= 30)) {
+                return POKEBALLS.ultra;
+            }
+            if (nivel && nivel >= 15) {
+                return POKEBALLS.great;
+            }
+            return POKEBALLS.poke;
         }
 
         async function obtenerDatosPokeAPI(pokemonId) {
@@ -450,14 +652,46 @@
                 const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
                 const data = await res.json();
                 const nombreLower = data.name.toLowerCase();
+                
+                const tipos = data.types.map(t => {
+                    const tipoIngles = t.type.name;
+                    return TRADUCCION_TIPOS[tipoIngles] ? TRADUCCION_TIPOS[tipoIngles].toUpperCase() : tipoIngles.toUpperCase();
+                }).join(' / ');
+
+                let movimientosNombres = ["TERREMOTO", "HIPERRAYO"];
+                if (MEJORES_MOVIMIENTOS[pokemonId]) {
+                    movimientosNombres = MEJORES_MOVIMIENTOS[pokemonId];
+                } else if (data.moves && data.moves.length > 0) {
+                    const idx1 = pokemonId % data.moves.length;
+                    const idx2 = (pokemonId + 3) % data.moves.length;
+                    
+                    const m1Url = data.moves[idx1].move.url;
+                    const m2Url = data.moves[idx2].move.url;
+
+                    const [m1Res, m2Res] = await Promise.all([fetch(m1Url), fetch(m2Url)]);
+                    const [m1Data, m2Data] = await Promise.all([m1Res.json(), m2Res.json()]);
+
+                    const name1Esp = m1Data.names.find(n => n.language.name === 'es');
+                    const name2Esp = m2Data.names.find(n => n.language.name === 'es');
+
+                    movimientosNombres = [
+                        name1Esp ? name1Esp.name.toUpperCase() : data.moves[idx1].move.name.toUpperCase(),
+                        name2Esp ? name2Esp.name.toUpperCase() : data.moves[idx2].move.name.toUpperCase()
+                    ];
+                }
+
                 return {
                     nombre: data.name.toUpperCase(),
+                    tipos: tipos,
+                    movimientos: movimientosNombres.join(' / '),
                     normalSprite: `https://play.pokemonshowdown.com/sprites/xyani/${nombreLower}.gif`,
                     shinySprite: `https://play.pokemonshowdown.com/sprites/xyani-shiny/${nombreLower}.gif`
                 };
             } catch (e) {
                 return {
                     nombre: `POKEMON #${pokemonId}`,
+                    tipos: "DESCONOCIDO",
+                    movimientos: "PLACAJE / ARAÑAZO",
                     normalSprite: `https://play.pokemonshowdown.com/sprites/xyani/${pokemonId}.gif`,
                     shinySprite: `https://play.pokemonshowdown.com/sprites/xyani-shiny/${pokemonId}.gif`
                 };
@@ -484,23 +718,48 @@
             }
         }
 
-        async function renderizarEnPantalla(pokemonId, nivel, mostrarShiny, usuario, tieneShiny = false) {
+        async function renderizarEnPantalla(pokemonId, nivel, fechaCaptura, mostrarShiny, usuario, tieneShiny = false) {
+            document.getElementById('pokemon-name').textContent = "CARGANDO...";
+            document.getElementById('pokemon-types').textContent = "TIPO: ...";
+            document.getElementById('pokemon-moves').textContent = "MOVS: ...";
+
             const apiData = await obtenerDatosPokeAPI(pokemonId);
             const esShinyFinal = tieneShiny && mostrarShiny;
+
+            let fechaFormateada = "---";
+            if (fechaCaptura && fechaCaptura !== "---") {
+                const dateObj = new Date(fechaCaptura);
+                if (!isNaN(dateObj)) {
+                    fechaFormateada = dateObj.toLocaleDateString('es-ES');
+                } else {
+                    fechaFormateada = fechaCaptura;
+                }
+            }
 
             pokemonActualDisplay = {
                 id: pokemonId,
                 nombre: apiData.nombre,
+                tipos: apiData.tipos,
+                movimientos: apiData.movimientos,
                 nivel: nivel || 1,
+                fecha: fechaFormateada,
                 esShiny: esShinyFinal,
                 usuario: usuario,
                 tieneShinyReal: tieneShiny
             };
 
-            document.getElementById('pokemon-sprite').src = esShinyFinal ? apiData.shinySprite : apiData.normalSprite;
+            const spriteImg = document.getElementById('pokemon-sprite');
+            spriteImg.src = esShinyFinal ? apiData.shinySprite : apiData.normalSprite;
+            
             document.getElementById('pokemon-name').textContent = apiData.nombre;
+            document.getElementById('pokemon-types').textContent = `TIPO: ${apiData.tipos}`;
+            document.getElementById('pokemon-moves').textContent = `MOVS: ${apiData.movimientos}`;
             document.getElementById('pokemon-level').textContent = `Nivel ${nivel || 1}`;
+            document.getElementById('pokemon-date').textContent = `FECHA: ${fechaFormateada}`;
             document.getElementById('pokemon-owner').textContent = `@${usuario}`;
+
+            const ballImgUrl = obtenerPokeballSegunRareza(pokemonId, nivel, esShinyFinal);
+            document.getElementById('pokemon-ball-img').src = ballImgUrl;
             
             const shinyEl = document.getElementById('shiny-status');
             if (esShinyFinal) {
@@ -517,7 +776,7 @@
         async function renderizarRegionActual() {
             const region = REGIONES[regionActualIndex];
             const contenedor = document.getElementById('contenedor-catalogo');
-            document.getElementById('box-title').textContent = region.nombre;
+            document.getElementById('box-title').textContent = `${region.nombre} Pokédex`;
             contenedor.innerHTML = '';
 
             let desbloqueados = 0;
@@ -540,7 +799,7 @@
                         ${captura.es_shiny ? '<span class="absolute top-0 right-0 text-xs">✨</span>' : ''}
                     `;
                     item.addEventListener('click', () => {
-                        renderizarEnPantalla(captura.pokemon_id, captura.nivel, false, captura.username, captura.es_shiny);
+                        renderizarEnPantalla(captura.pokemon_id, captura.nivel, captura.created_at || captura.fecha, false, captura.username, captura.es_shiny);
                     });
                 } else {
                     item.innerHTML = `
@@ -555,6 +814,13 @@
         }
 
         async function consultarUsuario(nombreUsuario) {
+            usuarioActualNombre = nombreUsuario;
+            
+            const avatarGuardado = localStorage.getItem(`avatar_${nombreUsuario}`);
+            if (avatarGuardado) {
+                document.getElementById('trainer-avatar-img').src = avatarGuardado;
+            }
+
             const { data, error } = await _supabase
                 .from('pokemon_capturados')
                 .select('*')
@@ -566,6 +832,97 @@
             }
         }
 
+        document.getElementById('toggle-avatar-selector').addEventListener('click', () => {
+            const selectorBox = document.getElementById('avatar-selector-box');
+            selectorBox.classList.toggle('hidden-selector');
+        });
+
+        function cambiarAvatarEntrenador(urlAvatar) {
+            document.getElementById('trainer-avatar-img').src = urlAvatar;
+            localStorage.setItem(`avatar_${usuarioActualNombre}`, urlAvatar);
+            document.getElementById('avatar-selector-box').classList.add('hidden-selector');
+        }
+
+        function actualizarPaginaEntrenador() {
+            document.getElementById('trainer-card-name').textContent = `@${usuarioActualNombre}`;
+            
+            const totalCapturados = capturasUsuarioActual.length;
+            document.getElementById('stat-total').textContent = `${totalCapturados} / 1025`;
+
+            const totalShinys = capturasUsuarioActual.filter(c => c.es_shiny).length;
+            document.getElementById('stat-shinys').textContent = `${totalShinys} ✨`;
+
+            let sumaNiveles = 0;
+            capturasUsuarioActual.forEach(c => {
+                sumaNiveles += (c.nivel || 1);
+            });
+            const nivelPromedio = totalCapturados > 0 ? Math.round(sumaNiveles / totalCapturados) : 1;
+            document.getElementById('stat-lvl').textContent = `Lv. ${nivelPromedio}`;
+
+            const porcentajeGlobal = ((totalCapturados / 1025) * 100).toFixed(1);
+            document.getElementById('stat-percent').textContent = `${porcentajeGlobal}%`;
+
+            const breakdownContainer = document.getElementById('regions-breakdown');
+            breakdownContainer.innerHTML = '';
+
+            const badgesContainer = document.getElementById('badges-container');
+            badgesContainer.innerHTML = '';
+
+            REGIONES.forEach(reg => {
+                const capturadosEnReg = capturasUsuarioActual.filter(c => c.pokemon_id >= reg.min && c.pokemon_id <= reg.max).length;
+                const totalReg = reg.max - reg.min + 1;
+                const porcentajeReg = ((capturadosEnReg / totalReg) * 100).toFixed(0);
+                const completada = capturadosEnReg >= totalReg;
+
+                const row = document.createElement('div');
+                row.className = 'flex justify-between items-center bg-white p-2 rounded border border-[#d4c4b2]';
+                row.innerHTML = `
+                    <span class="font-bold text-[#5a4a3a]">${reg.nombre}:</span>
+                    <span class="text-[#2a201a]">${capturadosEnReg} / ${totalReg} (${porcentajeReg}%)</span>
+                `;
+                breakdownContainer.appendChild(row);
+
+                const badgeImg = document.createElement('img');
+                badgeImg.src = reg.badge;
+                badgeImg.alt = `Medalla ${reg.nombre}`;
+                badgeImg.className = `w-8 h-8 object-contain ${completada ? 'badge-unlocked' : 'badge-locked'}`;
+                badgeImg.title = `${reg.nombre}: ${completada ? '¡Completada!' : 'Bloqueada (Faltan Pokémon)'}`;
+                badgesContainer.appendChild(badgeImg);
+            });
+        }
+
+        // FUNCIÓN DE TRANSICIÓN DE CAMBIO DE HOJA (PAGE FLIP)
+        function cambiarVistaConTransicion(mostrarTrainer) {
+            const container = document.getElementById('app-main');
+            container.classList.add('page-flip-out');
+
+            setTimeout(() => {
+                if (mostrarTrainer) {
+                    actualizarPaginaEntrenador();
+                    document.getElementById('view-pokedex').classList.add('hidden-app');
+                    document.getElementById('view-trainer').classList.remove('hidden-app');
+                } else {
+                    document.getElementById('view-trainer').classList.add('hidden-app');
+                    document.getElementById('view-pokedex').classList.remove('hidden-app');
+                }
+
+                container.classList.remove('page-flip-out');
+                container.classList.add('page-flip-in');
+
+                setTimeout(() => {
+                    container.classList.remove('page-flip-in');
+                }, 600);
+            }, 300);
+        }
+
+        document.getElementById('btn-ir-trainer').addEventListener('click', () => {
+            cambiarVistaConTransicion(true);
+        });
+
+        document.getElementById('btn-volver-pokedex').addEventListener('click', () => {
+            cambiarVistaConTransicion(false);
+        });
+
         document.getElementById('sound-toggle').addEventListener('click', toggleAudio);
 
         document.getElementById('shiny-status').addEventListener('click', () => {
@@ -573,21 +930,26 @@
             renderizarEnPantalla(
                 pokemonActualDisplay.id,
                 pokemonActualDisplay.nivel,
+                pokemonActualDisplay.fecha,
                 !pokemonActualDisplay.esShiny,
                 pokemonActualDisplay.usuario,
                 pokemonActualDisplay.tieneShinyReal
             );
         });
 
-        document.getElementById('btn-prev-gen').addEventListener('click', () => {
-            regionActualIndex = (regionActualIndex - 1 + REGIONES.length) % REGIONES.length;
-            renderizarRegionActual();
-        });
-
-        document.getElementById('btn-next-gen').addEventListener('click', () => {
+        function cambiarSiguienteRegion() {
             regionActualIndex = (regionActualIndex + 1) % REGIONES.length;
             renderizarRegionActual();
-        });
+        }
+
+        function cambiarAnteriorRegion() {
+            regionActualIndex = (regionActualIndex - 1 + REGIONES.length) % REGIONES.length;
+            renderizarRegionActual();
+        }
+
+        document.getElementById('btn-prev-gen').addEventListener('click', cambiarAnteriorRegion);
+        document.getElementById('btn-next-gen').addEventListener('click', cambiarSiguienteRegion);
+        document.getElementById('btn-next-gen-footer').addEventListener('click', cambiarSiguienteRegion);
 
         document.getElementById('btn-consultar').addEventListener('click', () => {
             const nick = document.getElementById('input-usuario').value.trim();
