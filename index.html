@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Pokédex</title>
+    <title>Pokédex</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fuente Pixel retro 'Press Start 2P' -->
@@ -25,6 +25,63 @@
             align-items: center;
             justify-content: center;
             padding: 1rem;
+        }
+
+        /* PANTALLA DE BIENVENIDA SIN NINGÚN CUADRO */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            background-color: #d8c4b6;
+            background-image: radial-gradient(#e5d4c0 15%, transparent 16%);
+            background-size: 24px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            z-index: 100;
+            cursor: pointer;
+            transition: opacity 0.5s ease;
+        }
+
+        .splash-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .splash-gif-container {
+            width: 160px;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .splash-gif-container img {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+        }
+
+        .blink-text {
+            font-size: 10px;
+            color: #5a4a3a;
+            line-height: 1.6;
+            animation: text-blink 1.2s infinite;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+        }
+
+        @keyframes text-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* CONTENEDOR PRINCIPAL DE LA POKÉDEX (OCULTO AL INICIO) */
+        .hidden-app {
+            display: none !important;
         }
 
         .pokedex-container {
@@ -215,7 +272,6 @@
             opacity: 0.25;
         }
 
-        /* ANIMACIÓN SHINY ESTRELLA ARCADE */
         .sparkle-particle { 
             position: absolute; 
             pointer-events: none; 
@@ -243,7 +299,7 @@
             border-top: 2px solid #e0d4c8;
             text-align: center;
             font-size: 8px;
-            color: #4a403a;
+            color: #6a5a4a;
             font-weight: bold;
         }
     </style>
@@ -256,14 +312,27 @@
         Tu navegador no soporta audio.
     </audio>
 
-    <div class="pokedex-container">
+    <!-- PANTALLA DE BIENVENIDA SIN NINGÚN CUADRO -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="text-xs font-bold text-[#5a4a3a]" style="font-size: 14px;">POKÉDEX TWITCH</div>
+            <div class="splash-gif-container">
+                <!-- Puedes cambiar este enlace por cualquier otro GIF -->
+                <img src="https://files.catbox.moe/kyrpz3.gif" alt="GIF Bienvenida" class="animate-float">
+            </div>
+            <div class="blink-text">¡TOCA LA PANTALLA PARA INICIAR!</div>
+        </div>
+    </div>
+
+    <!-- APLICACIÓN PRINCIPAL (POKÉDEX) -->
+    <div id="app-main" class="pokedex-container hidden-app">
         
         <!-- BARRA SUPERIOR DE BÚSQUEDA -->
         <div class="top-search-bar">
             <input type="text" id="input-usuario" class="search-input" placeholder="Nick de Twitch...">
             <div class="flex gap-2">
                 <button id="btn-consultar" class="btn-buscar">BUSCAR</button>
-                <button id="sound-toggle" class="btn-buscar" title="Activar Audio">🔊 AUDIO OFF</button>
+                <button id="sound-toggle" class="btn-buscar" title="Activar Audio">🔊 AUDIO ON</button>
             </div>
         </div>
 
@@ -323,26 +392,37 @@
             { nombre: "Paldea Pokédex", min: 906, max: 1025 }
         ];
 
-        // LISTA DE POKÉMON ICÓNICOS PARA LA BIENVENIDA ALEATORIA
-        const POKEMON_ICONICOS = [
-            25,  // Pikachu
-            6,   // Charizard
-            9,   // Blastoise
-            3,   // Venusaur
-            150, // Mewtwo
-            151, // Mew
-            94,  // Gengar
-            143, // Snorlax
-            133, // Eevee
-            448, // Lucario
-            384, // Rayquaza
-            248  // Tyranitar
-        ];
+        const POKEMON_ICONICOS = [25, 6, 9, 3, 150, 151, 94, 143, 133, 448, 384, 248];
 
         let regionActualIndex = 0;
         let capturasUsuarioActual = [];
         let pokemonActualDisplay = { id: 25, nombre: "PIKACHU", nivel: 1, esShiny: false, usuario: "System", tieneShinyReal: false };
         let isMusicPlaying = false;
+
+        document.getElementById('splash-screen').addEventListener('click', () => {
+            const music = document.getElementById('bg-music');
+            const btn = document.getElementById('sound-toggle');
+            
+            music.volume = 0.3;
+            music.play().then(() => {
+                isMusicPlaying = true;
+                btn.textContent = "🔊 AUDIO ON";
+                btn.style.background = "linear-gradient(180deg, #a8d8a8 0%, #68b868 100%)";
+            }).catch(err => {
+                console.warn("Reproducción automática bloqueada:", err);
+            });
+
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+                document.getElementById('app-main').classList.remove('hidden-app');
+                
+                renderizarRegionActual();
+                const idAleatorio = POKEMON_ICONICOS[Math.floor(Math.random() * POKEMON_ICONICOS.length)];
+                renderizarEnPantalla(idAleatorio, 1, false, 'System', false);
+            }, 500);
+        });
 
         function toggleAudio() {
             const music = document.getElementById('bg-music');
@@ -355,13 +435,12 @@
                     btn.textContent = "🔊 AUDIO ON";
                     btn.style.background = "linear-gradient(180deg, #a8d8a8 0%, #68b868 100%)";
                 }).catch(err => {
-                    console.warn("Reproducción bloqueada por el navegador:", err);
-                    alert("Haz clic de nuevo en el botón de audio para permitir la reproducción.");
+                    console.warn("Reproducción bloqueada:", err);
                 });
             } else {
                 music.pause();
                 isMusicPlaying = false;
-                btn.textContent = "🔊 AUDIO OFF";
+                btn.textContent = "🔇 AUDIO OFF";
                 btn.style.background = "linear-gradient(180deg, #d8d8d8 0%, #a8a8a8 100%)";
             }
         }
@@ -520,14 +599,6 @@
                 const nick = document.getElementById('input-usuario').value.trim();
                 if (nick) consultarUsuario(nick);
             }
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            renderizarRegionActual();
-            
-            // SELECCIÓN ALEATORIA DE UN POKÉMON ICÓNICO AL ENTRAR A LA WEB
-            const idAleatorio = POKEMON_ICONICOS[Math.floor(Math.random() * POKEMON_ICONICOS.length)];
-            renderizarEnPantalla(idAleatorio, 1, false, 'System', false);
         });
     </script>
 </body>
