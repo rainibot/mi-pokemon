@@ -112,6 +112,7 @@
             position: relative;
             border-radius: 4px;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.08);
+            overflow: hidden;
         }
 
         .info-bottom-box {
@@ -214,18 +215,28 @@
             opacity: 0.25;
         }
 
+        /* NUEVA ANIMACIÓN SHINY ESTILO ESTRELLA ARCADE */
         .sparkle-particle { 
             position: absolute; 
             pointer-events: none; 
-            background-color: #ffd700; 
-            box-shadow: 0 0 6px #fff, 0 0 10px #ffea00; 
-            animation: sparkle-anim 0.8s ease-out forwards; 
+            background: radial-gradient(circle, #ffffff 0%, #ffea00 50%, #ff8c00 100%); 
+            box-shadow: 0 0 12px #fff, 0 0 22px #ffcc00; 
+            animation: arcade-sparkle 1.2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; 
             clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%); 
         }
 
-        @keyframes sparkle-anim {
-            0% { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(180deg); opacity: 0; }
+        @keyframes arcade-sparkle {
+            0% { 
+                transform: translate(0, 0) scale(0.2) rotate(0deg); 
+                opacity: 0; 
+            }
+            20% { 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translate(var(--tx), var(--ty)) scale(2.5) rotate(360deg); 
+                opacity: 0; 
+            }
         }
 
         @keyframes float-anim { 
@@ -247,7 +258,7 @@
 </head>
 <body>
 
-    <!-- REPRODUCTOR DE MÚSICA CON LINK DIRECTO (Reemplaza el src con tu enlace MP3) -->
+    <!-- REPRODUCTOR DE MÚSICA CON LINK DIRECTO -->
     <audio id="bg-music" loop preload="auto">
         <source src="https://github.com/rainibot/TittleScreen/raw/refs/heads/main/TittleScreen.mp3" type="audio/mpeg">
         Tu navegador no soporta audio.
@@ -366,17 +377,23 @@
             }
         }
 
+        // ANIMACIÓN DE CHISPAS TIPO ESTRELLA GIRATORIA
         function crearChispas() {
             const container = document.getElementById('sparkle-container');
             container.innerHTML = '';
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 15; i++) {
                 const p = document.createElement('div');
                 p.className = 'sparkle-particle';
-                p.style.width = '8px'; p.style.height = '8px';
+                p.style.width = '16px'; p.style.height = '16px';
                 p.style.left = '50%'; p.style.top = '50%';
-                const angle = (i / 8) * 2 * Math.PI;
-                p.style.setProperty('--tx', `${Math.cos(angle) * 50}px`);
-                p.style.setProperty('--ty', `${Math.sin(angle) * 50}px`);
+                
+                const angle = (i / 15) * 2 * Math.PI;
+                const distance = 40 + Math.random() * 80;
+                
+                p.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+                p.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+                p.style.animationDelay = `${Math.random() * 0.3}s`;
+                
                 container.appendChild(p);
             }
         }
