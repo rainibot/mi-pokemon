@@ -234,7 +234,6 @@
         }
         .animate-float { animation: float-anim 2.5s ease-in-out infinite; }
 
-        /* Estilo para el texto contador de región abajo */
         .region-counter-footer {
             margin-top: auto;
             padding-top: 10px;
@@ -247,6 +246,12 @@
     </style>
 </head>
 <body>
+
+    <!-- REPRODUCTOR DE MÚSICA CON LINK DIRECTO (Reemplaza el src con tu enlace MP3) -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://github.com/rainibot/TittleScreen/raw/refs/heads/main/TittleScreen.mp3" type="audio/mpeg">
+        Tu navegador no soporta audio.
+    </audio>
 
     <div class="pokedex-container">
         
@@ -288,7 +293,7 @@
 
                 <div id="contenedor-catalogo" class="pokemon-grid"></div>
 
-                <!-- TEXTO CONTADOR SOLICITADO -->
+                <!-- CONTADOR DE REGIÓN -->
                 <div id="region-counter" class="region-counter-footer">
                     Tienes: 0/151
                 </div>
@@ -318,59 +323,27 @@
         let regionActualIndex = 0;
         let capturasUsuarioActual = [];
         let pokemonActualDisplay = { id: 9, nombre: "BLASTOISE", nivel: 3, esShiny: false, usuario: "System", tieneShinyReal: false };
-        
-        let audioCtx = null;
-        let audioEnabled = false;
+        let isMusicPlaying = false;
 
         function toggleAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            audioEnabled = !audioEnabled;
+            const music = document.getElementById('bg-music');
             const btn = document.getElementById('sound-toggle');
-            if (audioEnabled) {
-                btn.textContent = "🔊 AUDIO ON";
-                btn.style.background = "linear-gradient(180deg, #a8d8a8 0%, #68b868 100%)";
-                playRetroSound('click');
-            } else {
-                btn.textContent = "🔇 AUDIO OFF";
-                btn.style.background = "linear-gradient(180deg, #d8d8d8 0%, #a8a8a8 100%)";
-            }
-        }
-
-        function playRetroSound(type) {
-            if (!audioEnabled || !audioCtx) return;
-            const now = audioCtx.currentTime;
-
-            if (type === 'click') {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(440, now);
-                osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-                gain.gain.setValueAtTime(0.08, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start(now);
-                osc.stop(now + 0.08);
-            } else if (type === 'shiny') {
-                const notes = [1046.50, 1318.51, 1567.98, 2093.00];
-                notes.forEach((freq, idx) => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(freq, now + (idx * 0.06));
-                    gain.gain.setValueAtTime(0.08, now + (idx * 0.06));
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.06) + 0.2);
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.start(now + (idx * 0.06));
-                    osc.stop(now + (idx * 0.06) + 0.2);
+            
+            if (!isMusicPlaying) {
+                music.volume = 0.3;
+                music.play().then(() => {
+                    isMusicPlaying = true;
+                    btn.textContent = "🔊 AUDIO ON";
+                    btn.style.background = "linear-gradient(180deg, #a8d8a8 0%, #68b868 100%)";
+                }).catch(err => {
+                    console.warn("Reproducción bloqueada por el navegador:", err);
+                    alert("Haz clic de nuevo en el botón de audio para permitir la reproducción.");
                 });
+            } else {
+                music.pause();
+                isMusicPlaying = false;
+                btn.textContent = "🔊 AUDIO OFF";
+                btn.style.background = "linear-gradient(180deg, #d8d8d8 0%, #a8a8a8 100%)";
             }
         }
 
@@ -430,7 +403,6 @@
             if (esShinyFinal) {
                 shinyEl.textContent = "Shiny ✨!";
                 shinyEl.style.color = "#d4af37";
-                playRetroSound('shiny');
                 crearChispas();
             } else {
                 shinyEl.textContent = "Shiny ✨?";
@@ -465,7 +437,6 @@
                         ${captura.es_shiny ? '<span class="absolute top-0 right-0 text-xs">✨</span>' : ''}
                     `;
                     item.addEventListener('click', () => {
-                        playRetroSound('click');
                         renderizarEnPantalla(captura.pokemon_id, captura.nivel, false, captura.username, captura.es_shiny);
                     });
                 } else {
@@ -477,12 +448,10 @@
                 contenedor.appendChild(item);
             }
 
-            // Actualizar el texto del contador
             document.getElementById('region-counter').textContent = `Tienes: ${desbloqueados}/${totalRegion}`;
         }
 
         async function consultarUsuario(nombreUsuario) {
-            playRetroSound('click');
             const { data, error } = await _supabase
                 .from('pokemon_capturados')
                 .select('*')
@@ -497,7 +466,6 @@
         document.getElementById('sound-toggle').addEventListener('click', toggleAudio);
 
         document.getElementById('shiny-status').addEventListener('click', () => {
-            playRetroSound('click');
             if (!pokemonActualDisplay.tieneShinyReal) return;
             renderizarEnPantalla(
                 pokemonActualDisplay.id,
@@ -509,13 +477,11 @@
         });
 
         document.getElementById('btn-prev-gen').addEventListener('click', () => {
-            playRetroSound('click');
             regionActualIndex = (regionActualIndex - 1 + REGIONES.length) % REGIONES.length;
             renderizarRegionActual();
         });
 
         document.getElementById('btn-next-gen').addEventListener('click', () => {
-            playRetroSound('click');
             regionActualIndex = (regionActualIndex + 1) % REGIONES.length;
             renderizarRegionActual();
         });
