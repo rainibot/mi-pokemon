@@ -27,7 +27,6 @@
             padding: 1rem;
         }
 
-        /* CONTENEDOR PRINCIPAL IDÉNTICO A LA REFERENCIA */
         .pokedex-container {
             width: 100%;
             max-width: 950px;
@@ -41,7 +40,6 @@
             gap: 16px;
         }
 
-        /* BARRA SUPERIOR DE BÚSQUEDA */
         .top-search-bar {
             display: flex;
             justify-content: space-between;
@@ -74,7 +72,6 @@
         }
         .btn-buscar:active { transform: translateY(2px); box-shadow: 0 1px 0 #2a201a; }
 
-        /* DOS PANELES PRINCIPALES */
         .main-panels {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -85,7 +82,6 @@
             .main-panels { grid-template-columns: 1fr; }
         }
 
-        /* PANEL IZQUIERDO */
         .left-panel {
             background-color: #ede2d5;
             border: 4px solid #b5a493;
@@ -130,7 +126,6 @@
             background: #e8dcd0;
         }
 
-        /* PANEL DERECHO */
         .right-panel {
             background-color: #f7f1e8;
             border: 4px solid #b5a493;
@@ -174,13 +169,12 @@
             letter-spacing: 1px;
         }
 
-        /* GRILLA DE POKÉMON (TAMAÑO AUMENTADO) */
         .pokemon-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 18px;
             overflow-y: auto;
-            max-height: 380px;
+            max-height: 360px;
             padding: 6px;
             align-items: center;
             justify-items: center;
@@ -203,8 +197,8 @@
         }
 
         .pokemon-item img {
-            width: 140px; /* Tamaño aumentado */
-            height: 140px; /* Tamaño aumentado */
+            width: 100px;
+            height: 100px;
             object-fit: contain;
         }
 
@@ -240,27 +234,16 @@
         }
         .animate-float { animation: float-anim 2.5s ease-in-out infinite; }
 
-        .down-arrow-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 12px;
+        /* Estilo para el texto contador de región abajo */
+        .region-counter-footer {
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 2px solid #e0d4c8;
+            text-align: center;
+            font-size: 8px;
+            color: #6a5a4a;
+            font-weight: bold;
         }
-
-        .down-arrow-btn {
-            background: #ff6b35;
-            border: 3px solid #a3330b;
-            width: 36px;
-            height: 24px;
-            border-radius: 0 0 12px 12px;
-            cursor: pointer;
-            box-shadow: 0 3px 0 #702005;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 10px;
-        }
-        .down-arrow-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #702005; }
     </style>
 </head>
 <body>
@@ -272,7 +255,7 @@
             <input type="text" id="input-usuario" class="search-input" placeholder="Nick de Twitch...">
             <div class="flex gap-2">
                 <button id="btn-consultar" class="btn-buscar">BUSCAR</button>
-                <button id="sound-toggle" class="btn-buscar" title="Audio">🔊</button>
+                <button id="sound-toggle" class="btn-buscar" title="Activar Audio">🔊 AUDIO OFF</button>
             </div>
         </div>
 
@@ -303,12 +286,11 @@
                     <button id="btn-next-gen" class="arrow-btn">❯</button>
                 </div>
 
-                <div id="contenedor-catalogo" class="pokemon-grid">
-                    <!-- Aquí se cargan dinámicamente las imágenes grandes -->
-                </div>
+                <div id="contenedor-catalogo" class="pokemon-grid"></div>
 
-                <div class="down-arrow-container">
-                    <button id="btn-next-gen-bottom" class="down-arrow-btn">▼</button>
+                <!-- TEXTO CONTADOR SOLICITADO -->
+                <div id="region-counter" class="region-counter-footer">
+                    Tienes: 0/151
                 </div>
             </div>
 
@@ -336,28 +318,59 @@
         let regionActualIndex = 0;
         let capturasUsuarioActual = [];
         let pokemonActualDisplay = { id: 9, nombre: "BLASTOISE", nivel: 3, esShiny: false, usuario: "System", tieneShinyReal: false };
+        
         let audioCtx = null;
+        let audioEnabled = false;
 
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+        function toggleAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('sound-toggle');
+            if (audioEnabled) {
+                btn.textContent = "🔊 AUDIO ON";
+                btn.style.background = "linear-gradient(180deg, #a8d8a8 0%, #68b868 100%)";
+                playRetroSound('click');
+            } else {
+                btn.textContent = "🔇 AUDIO OFF";
+                btn.style.background = "linear-gradient(180deg, #d8d8d8 0%, #a8a8a8 100%)";
+            }
         }
 
-        function playSound(type) {
-            initAudio();
+        function playRetroSound(type) {
+            if (!audioEnabled || !audioCtx) return;
             const now = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
 
             if (type === 'click') {
-                osc.frequency.setValueAtTime(500, now);
-                osc.frequency.exponentialRampToValueAtTime(900, now + 0.05);
-                gain.gain.setValueAtTime(0.05, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
                 osc.start(now);
-                osc.stop(now + 0.05);
+                osc.stop(now + 0.08);
+            } else if (type === 'shiny') {
+                const notes = [1046.50, 1318.51, 1567.98, 2093.00];
+                notes.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + (idx * 0.06));
+                    gain.gain.setValueAtTime(0.08, now + (idx * 0.06));
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.06) + 0.2);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + (idx * 0.06));
+                    osc.stop(now + (idx * 0.06) + 0.2);
+                });
             }
         }
 
@@ -417,6 +430,7 @@
             if (esShinyFinal) {
                 shinyEl.textContent = "Shiny ✨!";
                 shinyEl.style.color = "#d4af37";
+                playRetroSound('shiny');
                 crearChispas();
             } else {
                 shinyEl.textContent = "Shiny ✨?";
@@ -431,9 +445,14 @@
             document.getElementById('box-title').textContent = region.nombre;
             contenedor.innerHTML = '';
 
+            let desbloqueados = 0;
+            const totalRegion = region.max - region.min + 1;
+
             for (let id = region.min; id <= region.max; id++) {
                 const captura = capturasUsuarioActual.find(c => c.pokemon_id === id);
                 const loTiene = !!captura;
+                if (loTiene) desbloqueados++;
+
                 const item = document.createElement('div');
                 item.className = `pokemon-item ${loTiene ? '' : 'opacity-70'}`;
                 
@@ -446,7 +465,7 @@
                         ${captura.es_shiny ? '<span class="absolute top-0 right-0 text-xs">✨</span>' : ''}
                     `;
                     item.addEventListener('click', () => {
-                        playSound('click');
+                        playRetroSound('click');
                         renderizarEnPantalla(captura.pokemon_id, captura.nivel, false, captura.username, captura.es_shiny);
                     });
                 } else {
@@ -457,10 +476,13 @@
                 }
                 contenedor.appendChild(item);
             }
+
+            // Actualizar el texto del contador
+            document.getElementById('region-counter').textContent = `Tienes: ${desbloqueados}/${totalRegion}`;
         }
 
         async function consultarUsuario(nombreUsuario) {
-            playSound('click');
+            playRetroSound('click');
             const { data, error } = await _supabase
                 .from('pokemon_capturados')
                 .select('*')
@@ -472,8 +494,10 @@
             }
         }
 
+        document.getElementById('sound-toggle').addEventListener('click', toggleAudio);
+
         document.getElementById('shiny-status').addEventListener('click', () => {
-            playSound('click');
+            playRetroSound('click');
             if (!pokemonActualDisplay.tieneShinyReal) return;
             renderizarEnPantalla(
                 pokemonActualDisplay.id,
@@ -485,19 +509,13 @@
         });
 
         document.getElementById('btn-prev-gen').addEventListener('click', () => {
-            playSound('click');
+            playRetroSound('click');
             regionActualIndex = (regionActualIndex - 1 + REGIONES.length) % REGIONES.length;
             renderizarRegionActual();
         });
 
         document.getElementById('btn-next-gen').addEventListener('click', () => {
-            playSound('click');
-            regionActualIndex = (regionActualIndex + 1) % REGIONES.length;
-            renderizarRegionActual();
-        });
-
-        document.getElementById('btn-next-gen-bottom').addEventListener('click', () => {
-            playSound('click');
+            playRetroSound('click');
             regionActualIndex = (regionActualIndex + 1) % REGIONES.length;
             renderizarRegionActual();
         });
