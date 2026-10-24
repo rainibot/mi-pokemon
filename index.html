@@ -17,8 +17,12 @@
         
         body { 
             background-color: #d8c4b6;
-            background-image: radial-gradient(#e5d4c0 15%, transparent 16%);
-            background-size: 24px 24px;
+            /* 🖼️ AQUÍ PUEDES PEGAR EL ENLACE DIRECTO DE TU IMAGEN .JPG ENTRE LAS COMILLAS */
+            background-image: url('https://files.catbox.moe/8g6ybt.jpg');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
             color: #4a403a; 
             min-height: 100vh;
             display: flex;
@@ -27,13 +31,14 @@
             padding: 1rem;
         }
 
-        /* PANTALLA DE BIENVENIDA SIN CUADRO */
         #splash-screen {
             position: fixed;
             inset: 0;
-            background-color: #d8c4b6;
-            background-image: radial-gradient(#e5d4c0 15%, transparent 16%);
-            background-size: 24px 24px;
+            /* Fondo nítido sin opacidad para que la imagen se vea perfecta */
+            background-image: url('TU_ENLACE_DE_IMAGEN_AQUI.jpg');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -66,12 +71,11 @@
             object-fit: contain;
         }
 
-        /* TAMAÑO DE LETRA AUMENTADO, RGB Y PARPADEO */
         .blink-text {
             font-size: 15px;
             line-height: 1.8;
             animation: text-blink 1.2s infinite, rgb-color-cycle 4s linear infinite;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
         @keyframes text-blink {
@@ -94,10 +98,11 @@
         .pokedex-container {
             width: 100%;
             max-width: 950px;
-            background-color: #e3d5c6;
+            background-color: rgba(227, 213, 198, 0.95);
+            backdrop-filter: blur(4px);
             border: 4px solid #b5a493;
             border-radius: 12px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
             padding: 20px;
             display: flex;
             flex-direction: column;
@@ -123,6 +128,24 @@
             outline: none;
             width: 220px;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .buscador-lupa-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .buscador-lupa-container input {
+            padding-left: 32px;
+        }
+
+        .buscador-lupa-container .icono-lupa {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            pointer-events: none;
         }
 
         .btn-buscar {
@@ -213,7 +236,6 @@
             border-bottom: 3px solid #e0d4c8;
         }
 
-        /* ESTILO CONSOLA CLÁSICO (RECTANGULAR CON RELIEVE) */
         .arrow-btn {
             background: linear-gradient(180deg, #ff8c5a 0%, #ff5722 100%);
             border: 3px solid #a3330b;
@@ -323,7 +345,6 @@
             font-weight: bold;
         }
 
-        /* ESTILOS PARA LAS MEDALLAS Y SELECTOR DE AVATAR */
         .badge-locked { filter: grayscale(100%) brightness(0.3); opacity: 0.35; }
         .badge-unlocked { filter: none; opacity: 1; animation: bounce-badge 1.5s infinite; }
         @keyframes bounce-badge {
@@ -354,19 +375,16 @@
 </head>
 <body>
 
-    <!-- REPRODUCTOR DE MÚSICA DE FONDO -->
     <audio id="bg-music" loop preload="auto">
         <source src="https://github.com/rainibot/TittleScreen/raw/refs/heads/main/TittleScreen.mp3" type="audio/mpeg">
         Tu navegador no soporta audio.
     </audio>
 
-    <!-- REPRODUCTOR PARA EL SONIDO DE CLIC (CAMBIA EL ENLACE POR EL DE TU GITHUB) -->
     <audio id="sonido-clic" src="https://github.com/rainibot/TittleScreen/raw/refs/heads/main/pokemon_a_button_gba.mp3" preload="auto"></audio>
 
-    <!-- PANTALLA DE BIENVENIDA -->
     <div id="splash-screen">
         <div class="splash-content">
-            <div class="font-bold" style="font-size: 18px; animation: rgb-color-cycle 4s linear infinite;">POKÉDEX TWITCH</div>
+            <div class="font-bold" style="font-size: 18px; animation: rgb-color-cycle 4s linear infinite; text-shadow: 2px 2px 4px rgba(0,0,0,0.9);">POKÉDEX TWITCH</div>
             <div class="splash-gif-container">
                 <img src="https://files.catbox.moe/kyrpz3.gif" alt="GIF Bienvenida" class="animate-float">
             </div>
@@ -374,12 +392,17 @@
         </div>
     </div>
 
-    <!-- APLICACIÓN PRINCIPAL (POKÉDEX) -->
     <div id="app-main" class="pokedex-container hidden-app">
         
-        <!-- BARRA SUPERIOR DE BÚSQUEDA Y NAVEGACIÓN -->
         <div class="top-search-bar">
-            <input type="text" id="input-usuario" class="search-input" placeholder="Nick de Twitch...">
+            <div class="flex gap-2 items-center flex-wrap">
+                <input type="text" id="input-usuario" class="search-input" placeholder="Nick de Twitch...">
+                <!-- BARRA DE BÚSQUEDA POR NOMBRE O ID (SE ACTIVA AL DAR ENTER) -->
+                <div class="buscador-lupa-container">
+                    <span class="icono-lupa">🔍</span>
+                    <input type="text" id="input-buscar-pokemon" class="search-input" placeholder="Nombre o ID...">
+                </div>
+            </div>
             <div class="flex gap-2 flex-wrap items-center">
                 <button id="btn-consultar" class="btn-buscar">BUSCAR</button>
                 <button id="sound-toggle" class="btn-buscar" title="Activar Audio">🔊 AUDIO ON</button>
@@ -387,14 +410,11 @@
             </div>
         </div>
 
-        <!-- PANELES DE LA POKÉDEX -->
         <div id="view-pokedex" class="main-panels">
             
-            <!-- PANEL IZQUIERDO -->
             <div class="left-panel">
                 <div id="pokemon-name" class="left-header">Cargando...</div>
                 
-                <!-- CUADRO BLANCO DEL POKÉMON -->
                 <div class="sprite-preview-box">
                     <img id="pokemon-sprite" src="" alt="Pokémon" class="w-56 h-56 object-contain animate-float">
                     <div id="sparkle-container" class="absolute inset-0 pointer-events-none"></div>
@@ -403,7 +423,6 @@
                 <div class="info-bottom-box">
                     <div class="flex justify-between items-center px-4">
                         <div id="pokemon-types" class="text-[8px] font-bold text-[#7a5a3a] tracking-wider">TIPO: ---</div>
-                        <!-- POKÉBALL DE CAPTURA -->
                         <div id="pokemon-ball-container" class="flex items-center gap-1.5 text-[8px] font-bold text-[#5a4a3a]" title="Pokéball de captura">
                             BALL: <img id="pokemon-ball-img" src="" alt="Pokéball" class="w-8 h-8 inline-block object-contain">
                         </div>
@@ -420,7 +439,6 @@
                 </div>
             </div>
 
-            <!-- PANEL DERECHO -->
             <div class="right-panel">
                 <div class="right-header">
                     <button id="btn-prev-gen" class="arrow-btn" title="Región Anterior">❮</button>
@@ -430,7 +448,6 @@
 
                 <div id="contenedor-catalogo" class="pokemon-grid"></div>
 
-                <!-- CONTADOR DE REGIÓN -->
                 <div class="region-counter-footer">
                     <span id="region-counter">Tienes: 0/151</span>
                 </div>
@@ -438,7 +455,6 @@
 
         </div>
 
-        <!-- SEGUNDA PÁGINA: TARJETA DE ENTRENADOR, AVATARES Y MEDALLAS -->
         <div id="view-trainer" class="hidden-app">
             <div class="flex justify-between items-center mb-4 pb-2 border-b-2 border-[#d4c4b2]">
                 <button id="btn-volver-pokedex" class="btn-buscar">⬅ VOLVER A POKÉDEX</button>
@@ -446,19 +462,16 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start bg-[#ede2d5] border-4 border-[#b5a493] rounded-lg p-6">
-                <!-- SECCIÓN IZQUIERDA: IMAGEN DEL ENTRENADOR Y SELECTOR -->
                 <div class="flex flex-col items-center justify-center bg-white border-3 border-[#b5a493] rounded-md p-5 gap-3 shadow-inner md:col-span-1">
                     <div class="text-xs font-bold text-[#5a4a3a]" id="trainer-card-name">@System</div>
                     <div class="w-32 h-32 flex items-center justify-center bg-[#f7f1e8] border-2 border-[#d4c4b2] rounded-md overflow-hidden">
                         <img id="trainer-avatar-img" src="https://play.pokemonshowdown.com/sprites/trainers/red.png" alt="Entrenador" class="w-28 h-28 object-contain animate-float">
                     </div>
                     
-                    <!-- TEXTO CLICKEABLE PARA DESPLEGAR EL SELECTOR -->
                     <span id="toggle-avatar-selector" class="text-[7px] text-[#ff6b35] font-bold text-center mt-1 cursor-pointer underline hover:text-[#d35400]">
                         ▼ ENTRENADOR ▼
                     </span>
 
-                    <!-- LISTA DE AVATARES (OCULTA POR DEFECTO) -->
                     <div id="avatar-selector-box" class="flex flex-wrap gap-1.5 justify-center hidden-selector mt-1 bg-[#f7f1e8] p-2 border border-[#d4c4b2] rounded">
                         <img src="https://play.pokemonshowdown.com/sprites/trainers/red.png" alt="Red" class="trainer-avatar-option" onclick="reproducirSonidoGithub(); cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/red.png')">
                         <img src="https://play.pokemonshowdown.com/sprites/trainers/blue.png" alt="Blue" class="trainer-avatar-option" onclick="reproducirSonidoGithub(); cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/blue.png')">
@@ -470,14 +483,12 @@
                         <img src="https://play.pokemonshowdown.com/sprites/trainers/dawn.png" alt="Dawn" class="trainer-avatar-option" onclick="reproducirSonidoGithub(); cambiarAvatarEntrenador('https://play.pokemonshowdown.com/sprites/trainers/dawn.png')">
                     </div>
 
-                    <!-- SECCIÓN DE MEDALLAS -->
                     <div class="w-full border-t-2 border-[#d4c4b2] pt-3 mt-1 flex flex-col gap-2">
                         <span class="text-[8px] font-bold text-[#5a4a3a] text-center">MEDALLAS DE REGIÓN</span>
                         <div id="badges-container" class="grid grid-cols-3 gap-2 justify-items-center"></div>
                     </div>
                 </div>
 
-                <!-- SECCIÓN DERECHA: STATS Y DESGLOSE POR REGIÓN -->
                 <div class="flex flex-col gap-3 text-[8px] text-[#4a403a] md:col-span-2 max-h-[460px] overflow-y-auto pr-1">
                     <div class="flex justify-between bg-white p-2.5 rounded border border-[#d4c4b2]">
                         <span>GLOBAL (TOTAL):</span>
@@ -498,7 +509,6 @@
                     
                     <div class="text-[9px] font-bold text-[#5a4a3a] mt-2 border-b border-[#d4c4b2] pb-1">CAPTURAS POR REGIÓN:</div>
                     
-                    <!-- Contenedor generado por JS para el desglose regional -->
                     <div id="regions-breakdown" class="flex flex-col gap-2"></div>
                 </div>
             </div>
@@ -530,6 +540,8 @@
             rock: "Roca", ghost: "Fantasma", dragon: "Dragón", dark: "Siniestro",
             steel: "Acero", fairy: "Hada"
         };
+
+        const NOMBRES_CACHE = {}; 
 
         const MEJORES_MOVIMIENTOS = {
             1: ["LATIGO CEPA", "RAYO SOLAR"],     
@@ -564,11 +576,10 @@
         let pokemonActualDisplay = { id: 25, nombre: "PIKACHU", nivel: 1, fecha: "---", esShiny: false, usuario: "System", tieneShinyReal: false };
         let isMusicPlaying = false;
 
-        // FUNCIÓN PARA REPRODUCIR TU MP3 DE GITHUB
         function reproducirSonidoGithub() {
             const audio = document.getElementById('sonido-clic');
             if (audio) {
-                audio.currentTime = 0; // Reinicia el audio para permitir clics rápidos
+                audio.currentTime = 0;
                 audio.play().catch(err => {
                     console.warn("Reproducción de audio bloqueada o enlace incorrecto:", err);
                 });
@@ -641,6 +652,10 @@
         }
 
         async function obtenerDatosPokeAPI(pokemonId) {
+            if (NOMBRES_CACHE[pokemonId]) {
+                return NOMBRES_CACHE[pokemonId];
+            }
+
             try {
                 const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
                 const data = await res.json();
@@ -673,13 +688,16 @@
                     ];
                 }
 
-                return {
+                const resultado = {
                     nombre: data.name.toUpperCase(),
                     tipos: tipos,
                     movimientos: movimientosNombres.join(' / '),
                     normalSprite: `https://play.pokemonshowdown.com/sprites/xyani/${nombreLower}.gif`,
                     shinySprite: `https://play.pokemonshowdown.com/sprites/xyani-shiny/${nombreLower}.gif`
                 };
+
+                NOMBRES_CACHE[pokemonId] = resultado;
+                return resultado;
             } catch (e) {
                 return {
                     nombre: `POKEMON #${pokemonId}`,
@@ -782,7 +800,11 @@
 
                 const item = document.createElement('div');
                 item.className = `pokemon-item ${loTiene ? '' : 'opacity-70'}`;
+                item.dataset.pokemonId = id;
                 
+                const datosPoke = await obtenerDatosPokeAPI(id);
+                item.dataset.pokemonName = datosPoke.nombre.toLowerCase();
+
                 const iconUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 
                 if (loTiene) {
@@ -808,6 +830,23 @@
             }
 
             document.getElementById('region-counter').textContent = `Tienes: ${desbloqueados}/${totalRegion}`;
+            filtrarPokemonEnRegion();
+        }
+
+        function filtrarPokemonEnRegion() {
+            const textoFiltro = document.getElementById('input-buscar-pokemon').value.toLowerCase().trim();
+            const items = document.querySelectorAll('.pokemon-item');
+
+            items.forEach(item => {
+                const id = item.dataset.pokemonId;
+                const nombre = item.dataset.pokemonName || '';
+
+                if (textoFiltro === '' || id === textoFiltro || id.includes(textoFiltro) || nombre.includes(textoFiltro)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
         }
 
         async function consultarUsuario(nombreUsuario) {
@@ -936,6 +975,7 @@
             reproducirSonidoGithub();
             const nick = document.getElementById('input-usuario').value.trim();
             if (nick) consultarUsuario(nick);
+            filtrarPokemonEnRegion();
         });
 
         document.getElementById('input-usuario').addEventListener('keypress', (e) => {
@@ -943,6 +983,13 @@
                 reproducirSonidoGithub();
                 const nick = document.getElementById('input-usuario').value.trim();
                 if (nick) consultarUsuario(nick);
+            }
+        });
+
+        document.getElementById('input-buscar-pokemon').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                reproducirSonidoGithub();
+                filtrarPokemonEnRegion();
             }
         });
     </script>
